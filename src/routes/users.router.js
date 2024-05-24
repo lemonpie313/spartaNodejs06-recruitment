@@ -17,13 +17,21 @@ router.post('/sign-up', async (req, res, next) => {
 
     //정보 기입 오류 시 에러
     if (!email) {
-      return res.status(400).json({ message: '이메일 주소를 입력해주세요.' });
+      return res
+        .status(400)
+        .json({ status: 400, message: '이메일 주소를 입력해주세요.' });
     } else if (!password) {
-      return res.status(400).json({ message: '비밀번호를 입력해주세요.' });
+      return res
+        .status(400)
+        .json({ status: 400, message: '비밀번호를 입력해주세요.' });
     } else if (!passwordConfirm) {
-      return res.status(400).json({ message: '비밀번호 확인을 입력해주세요.' });
+      return res
+        .status(400)
+        .json({ status: 400, message: '비밀번호 확인을 입력해주세요.' });
     } else if (!name) {
-      return res.status(400).json({ message: '이름을 입력해주세요.' });
+      return res
+        .status(400)
+        .json({ status: 400, message: '이름을 입력해주세요.' });
     }
 
     const isExistEmail = await prisma.Users.findFirst({
@@ -32,21 +40,25 @@ router.post('/sign-up', async (req, res, next) => {
       },
     });
     if (isExistEmail) {
-      return res.status(409).json({ message: '이미 가입된 사용자입니다.' });
+      return res
+        .status(409)
+        .json({ status: 409, message: '이미 가입된 사용자입니다.' });
     }
     const pattern = /^[A-Za-z0-9_\.\-]+@[A-Za-z0-9\-]+\.[A-za-z0-9\-]+/;
     if (!pattern.test(email)) {
       return res
         .status(400)
-        .json({ message: '이메일 형태가 올바르지 않습니다.' });
+        .json({ status: 400, message: '이메일 형태가 올바르지 않습니다.' });
     }
     if (password.length < 6) {
       return res
         .status(400)
-        .json({ message: '비밀번호는 6자리 이상이어야 합니다.' });
+        .json({ status: 400, message: '비밀번호는 6자리 이상이어야 합니다.' });
     }
     if (password != passwordConfirm) {
-      return res.status(400).json({ message: '비밀번호가 일치하지 않습니다' });
+      return res
+        .status(400)
+        .json({ status: 400, message: '비밀번호가 일치하지 않습니다' });
     }
 
     //비밀번호 암호화
@@ -95,9 +107,13 @@ router.post('/sign-in', async (req, res, next) => {
 
     //정보 기입 오류 에러처리
     if (!email) {
-      return res.status(400).json({ message: '이메일 주소를 입력해주세요.' });
+      return res
+        .status(400)
+        .json({ status: 400, message: '이메일 주소를 입력해주세요.' });
     } else if (!password) {
-      return res.status(400).json({ message: '비밀번호를 입력해주세요.' });
+      return res
+        .status(400)
+        .json({ status: 400, message: '비밀번호를 입력해주세요.' });
     }
 
     const pattern = /^[A-Za-z0-9_\.\-]+@[A-Za-z0-9\-]+\.[A-za-z0-9\-]+/;
@@ -146,7 +162,7 @@ router.post('/sign-in', async (req, res, next) => {
 });
 
 /* 회원정보 조회 */
-router.get('/', authMiddleware, async (req, res, next) => {
+router.get('/my-page', authMiddleware, async (req, res, next) => {
   try {
     const user = req.user;
     const userInfo = await prisma.UserInfos.findFirst({
