@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+//enum
+
+enum Position {
+  APPLICANT
+  RECRUITER
+}
+
+enum Status {
+  APPLY
+  DROP
+  INTERVIEW1
+  INTERVIEW2
+  FINAL_PASS
+}
+
+//model
+
+model Users {
+  userId    Int      @id @default(autoincrement()) @map("user_id")
+  email     String   @unique @map("email")
+  password  String   @map("password")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userInfo UserInfos?
+  myResumes MyResumes[]
+
+  @@map("users")
+}
+
+model UserInfos {
+  userInfoId  Int       @id                   @default(autoincrement())   @map("user_info_id")
+  userId      Int       @unique               @map("user_id")
+  email       String    @unique               @map("email")
+  name        String    @map("name")
+  password    String    @map("password")
+  position    Position  @default(APPLICANT)   @map("position")
+  createdAt   DateTime  @default(now())       @map("created_at")
+  updatedAt   DateTime  @updatedAt            @map("updated_at")
+
+  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("user_infos")
+}
+
+model MyResumes {
+  resumeId    Int       @id               @default(autoincrement())  @map("resume_id")
+  userId      Int       @map("user_id")
+  title       String    @map("title")
+  content     String    @map("content")   @db.Text
+  status      Status    @default(APPLY)    @map("status")
+  createdAt   DateTime  @default(now())   @map("created_at")
+  updatedAt   DateTime  @updatedAt        @map("updated_at")
+
+  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("my_resumes")
+}
+
+
+
