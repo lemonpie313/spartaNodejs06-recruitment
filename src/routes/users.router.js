@@ -3,6 +3,7 @@ import dotEnv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../utils/prisma.util.js';
 import bcrypt from 'bcrypt';
+import authMiddleware from '../middlewares/auth.middleware.js';
 //import { Prisma } from '@prisma/client';
 
 dotEnv.config();
@@ -138,6 +139,33 @@ router.post('/sign-in', async (req, res, next) => {
     res.status(200).json({
       status: 200,
       message: '로그인에 완료되었습니다.',
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/* 회원정보 조회 */
+router.get('/', authMiddleware, async (req, res, next) => {
+  try {
+    const user = req.user;
+    const userInfo = await prisma.UserInfos.findFirst({
+      where: {
+        userId: +user.userId,
+      },
+      select: {
+        userId: true,
+        email: true,
+        name: true,
+        position: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    return res.status(201).json({
+      status: 201,
+      message: '회원정보 조회에 성공하였습니다.',
+      data: { userInfo },
     });
   } catch (err) {
     next(err);
