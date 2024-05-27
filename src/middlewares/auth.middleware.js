@@ -41,12 +41,10 @@ export default async function (req, res, next) {
           .status(401)
           .json({ status: 401, message: '인증 정보가 유효하지 않습니다.' });
       default:
-        return res
-          .status(401)
-          .json({
-            status: 401,
-            message: error.message ?? '비정상적인 접근입니다.',
-          });
+        return res.status(401).json({
+          status: 401,
+          message: error.message ?? '비정상적인 접근입니다.',
+        });
     }
   }
 }

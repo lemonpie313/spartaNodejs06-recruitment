@@ -52,6 +52,8 @@ router.post('/resume', authMiddleware, async (req, res, next) => {
 router.get('/resume', authMiddleware, async (req, res, next) => {
   const { userId } = req.user;
 
+  const { sort } = req.query;
+
   const myPage = await prisma.Users.findMany({
     where: {
       userId,
@@ -72,11 +74,10 @@ router.get('/resume', authMiddleware, async (req, res, next) => {
           createdAt: true,
           updatedAt: true,
         },
+        orderBy: {
+          createdAt: 'desc' ?? sort.toLowerCase(),
+        },
       },
-    },
-
-    orderBy: {
-      createdAt: 'desc', // 게시글을 최신순으로 정렬합니다.
     },
   });
 
@@ -84,6 +85,51 @@ router.get('/resume', authMiddleware, async (req, res, next) => {
     status: 201,
     message: '이력서 조회에 성공했습니다.',
     data: { myPage },
+  });
+});
+
+router.get('/resume/:id', authMiddleware, async (req, res, next) => {
+  const { userId } = req.user;
+  const resumeId = req.params.id;
+
+  const myResume = await prisma.Users.findFirst({
+    where: {
+      userId,
+      //resumeId: +resumeId,
+    },
+    select: {
+      userInfos: {
+        select: {
+          name: true,
+        },
+      },
+      myResumes: {
+        where: {
+          resumeId: +resumeId,
+        },
+        select: {
+          title: true,
+          content: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
+  });
+
+  if (!String(myResume.myResumes)) {
+    return res.status(404).json({
+      status: 404,
+      message: '이력서가 존재하지 않습니다.',
+      data: myResume.myResumes,
+    });
+  }
+
+  return res.status(201).json({
+    status: 201,
+    message: '이력서 상세조회에 성공했습니다.',
+    data: { myResume },
   });
 });
 
