@@ -33,15 +33,18 @@ export default async function (req, res, next) {
 
     switch (error.name) {
       case 'TokenExpiredError':
-        return res.status(401).json({ message: '인증 정보가 만료되었습니다.' });
+        return res
+          .status(401)
+          .json({ status: 401, message: '인증 정보가 만료되었습니다.' });
       case 'JsonWebTokenError':
         return res
           .status(401)
-          .json({ message: '인증 정보가 유효하지 않습니다.' });
+          .json({ status: 401, message: '인증 정보가 유효하지 않습니다.' });
       default:
-        return res
-          .status(401)
-          .json({ message: error.message ?? '비정상적인 접근입니다.' });
+        return res.status(401).json({
+          status: 401,
+          message: error.message ?? '비정상적인 접근입니다.',
+        });
     }
   }
 }
