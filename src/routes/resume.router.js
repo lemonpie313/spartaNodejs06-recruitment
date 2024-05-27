@@ -2,7 +2,7 @@ import express from 'express';
 import dotEnv from 'dotenv';
 import { prisma } from '../utils/prisma.util.js';
 import authMiddleware from '../middlewares/auth.middleware.js';
-import requireRoles from '../middlewares/position.middleware.js';
+import requireRoles from '../middlewares/role.middleware.js';
 //import { Prisma } from '@prisma/client';
 
 dotEnv.config();
@@ -52,14 +52,14 @@ router.post('/resume', authMiddleware, async (req, res, next) => {
 
 router.get('/resume', authMiddleware, async (req, res, next) => {
   try {
-    const { userId, position } = req.user;
+    const { userId, role } = req.user;
 
     const { sort, status } = req.query;
 
     const myPage = await prisma.MyResumes.findMany({
       where: {
         userId:
-          position == 'APPLICANT'
+          role == 'APPLICANT'
             ? userId
             : {
                 gt: 0,
@@ -99,14 +99,14 @@ router.get('/resume', authMiddleware, async (req, res, next) => {
 
 router.get('/resume/:id', authMiddleware, async (req, res, next) => {
   try {
-    const { userId, position } = req.user;
+    const { userId, role } = req.user;
     const resumeId = req.params.id;
 
     const myResume = await prisma.MyResumes.findFirst({
       where: {
         resumeId: +resumeId,
         userId:
-          position == 'APPLICANT'
+          role == 'APPLICANT'
             ? userId
             : {
                 gt: 0,
