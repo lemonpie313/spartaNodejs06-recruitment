@@ -13,7 +13,7 @@ router.post('/resume', authMiddleware, async (req, res, next) => {
 
     const { title, content } = req.body;
 
-    if (!title) {
+    if (!title.trim()) {
       return res
         .status(400)
         .json({ status: 400, message: '제목을 입력해주세요.' });
@@ -149,27 +149,14 @@ router.patch('/resume/:id', authMiddleware, async (req, res, next) => {
     const resumeId = req.params.id;
     const { title, content } = req.body;
 
-    //console.log(typeof editResume.title);
-
-    // if (!editResume) {
-    //   return res
-    //     .status(400)
-    //     .json({ status: 400, message: '수정할 내용을 입력해주세요.' });
-    // } else if (editResume.content && editResume.content.length < 150) {
-    //   return res.status(400).json({
-    //     status: 400,
-    //     message: '이력서 내용은 150자 이상 작성해야 합니다.',
-    //   });
-    // }
-
     if (!title && !content) {
       return res
         .status(400)
         .json({ status: 400, message: '수정할 내용을 입력해주세요.' });
-    } else if (title == '') {
+    } else if (!title.trim()) {
       return res.status(400).json({
         status: 400,
-        message: '이력서 제목은 1자 이상 작성해야 합니다.',
+        message: '이력서 제목은 1글자 이상 작성해야 합니다.',
       });
     } else if (content.length < 150) {
       return res.status(400).json({
