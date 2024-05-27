@@ -2,6 +2,7 @@ import express from 'express';
 import dotEnv from 'dotenv';
 import { prisma } from '../utils/prisma.util.js';
 import authMiddleware from '../middlewares/auth.middleware.js';
+import requireRoles from '../middlewares/position.middleware.js';
 //import { Prisma } from '@prisma/client';
 
 dotEnv.config();
@@ -14,13 +15,9 @@ router.post('/resume', authMiddleware, async (req, res, next) => {
     const { title, content } = req.body;
 
     if (!title.trim()) {
-      return res
-        .status(400)
-        .json({ status: 400, message: '제목을 입력해주세요.' });
+      return res.status(400).json({ status: 400, message: '제목을 입력해주세요.' });
     } else if (!content) {
-      return res
-        .status(400)
-        .json({ status: 400, message: '내용을 입력해주세요.' });
+      return res.status(400).json({ status: 400, message: '내용을 입력해주세요.' });
     } else if (content.length < 150) {
       return res.status(400).json({
         status: 400,
@@ -55,34 +52,38 @@ router.post('/resume', authMiddleware, async (req, res, next) => {
 
 router.get('/resume', authMiddleware, async (req, res, next) => {
   try {
-    const { userId } = req.user;
+    const { userId, position } = req.user;
 
-    const { sort } = req.query;
+    const { sort, status } = req.query;
 
-    const myPage = await prisma.Users.findMany({
+    const myPage = await prisma.MyResumes.findMany({
       where: {
-        userId,
+        userId:
+          position == 'APPLICANT'
+            ? userId
+            : {
+                gt: 0,
+              },
+        status,
       },
       select: {
-        userId: true,
-
-        userInfos: {
+        users: {
           select: {
-            name: true,
+            userInfos: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
-        myResumes: {
-          select: {
-            resumeId: true,
-            title: true,
-            status: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-          orderBy: {
-            createdAt: 'desc' ?? sort.toLowerCase(),
-          },
-        },
+        resumeId: true,
+        title: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: {
+        createdAt: sort ?? 'desc',
       },
     });
 
@@ -98,35 +99,35 @@ router.get('/resume', authMiddleware, async (req, res, next) => {
 
 router.get('/resume/:id', authMiddleware, async (req, res, next) => {
   try {
-    const { userId } = req.user;
+    const { userId, position } = req.user;
     const resumeId = req.params.id;
 
-    const myResume = await prisma.Users.findFirst({
+    const myResume = await prisma.MyResumes.findFirst({
       where: {
-        userId,
+        resumeId: +resumeId,
+        userId:
+          position == 'APPLICANT'
+            ? userId
+            : {
+                gt: 0,
+              },
       },
       select: {
-        userInfos: {
+        users: {
           select: {
-            name: true,
+            userInfos: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
-        myResumes: {
-          where: {
-            resumeId: +resumeId,
-          },
-          select: {
-            title: true,
-            content: true,
-            status: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-        },
+        title: true,
+        content: true,
       },
     });
 
-    if (!String(myResume.myResumes)) {
+    if (!myResume) {
       return res.status(404).json({
         status: 404,
         message: '이력서가 존재하지 않습니다.',
@@ -150,9 +151,7 @@ router.patch('/resume/:id', authMiddleware, async (req, res, next) => {
     const { title, content } = req.body;
 
     if (!title && !content) {
-      return res
-        .status(400)
-        .json({ status: 400, message: '수정할 내용을 입력해주세요.' });
+      return res.status(400).json({ status: 400, message: '수정할 내용을 입력해주세요.' });
     } else if (!title.trim()) {
       return res.status(400).json({
         status: 400,
@@ -211,35 +210,39 @@ router.patch('/resume/:id', authMiddleware, async (req, res, next) => {
 });
 
 router.delete('/resume/:id', authMiddleware, async (req, res, next) => {
-  const { userId } = req.user;
-  const resumeId = req.params.id;
+  try {
+    const { userId } = req.user;
+    const resumeId = req.params.id;
 
-  const findResume = await prisma.MyResumes.findFirst({
-    where: {
-      userId,
-      resumeId: +resumeId,
-    },
-  });
-
-  if (!findResume) {
-    return res.status(404).json({
-      status: 404,
-      message: '이력서가 존재하지 않습니다.',
+    const findResume = await prisma.MyResumes.findFirst({
+      where: {
+        userId,
+        resumeId: +resumeId,
+      },
     });
+
+    if (!findResume) {
+      return res.status(404).json({
+        status: 404,
+        message: '이력서가 존재하지 않습니다.',
+      });
+    }
+
+    await prisma.MyResumes.delete({
+      where: {
+        userId,
+        resumeId: +resumeId,
+      },
+    });
+
+    return res.status(200).json({
+      status: 200,
+      message: '이력서 삭제가 완료되었습니다.',
+      data: { userId: userId },
+    });
+  } catch (err) {
+    next(err);
   }
-
-  await prisma.MyResumes.delete({
-    where: {
-      userId,
-      resumeId: +resumeId,
-    },
-  });
-
-  return res.status(200).json({
-    status: 200,
-    message: '이력서 삭제가 완료되었습니다.',
-    data: { userId: userId },
-  });
 });
 
 export default router;

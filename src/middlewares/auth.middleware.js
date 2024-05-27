@@ -11,14 +11,17 @@ export default async function (req, res, next) {
 
     const [tokenType, token] = resumeAccessToken.split(' ');
 
-    if (tokenType !== 'Bearer')
-      throw new Error('지원하지 않는 인증방식입니다.');
+    if (tokenType !== 'Bearer') throw new Error('지원하지 않는 인증방식입니다.');
 
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET_KEY);
     const userId = decodedToken.id;
 
-    const user = await prisma.users.findFirst({
+    const user = await prisma.UserInfos.findFirst({
       where: { userId: +userId },
+      select: {
+        userId: true,
+        position: true,
+      },
     });
     if (!user) {
       res.clearCookie('resumeAccessToken');
@@ -28,22 +31,18 @@ export default async function (req, res, next) {
     // req.user에 사용자 정보를 저장합니다.
     req.user = user;
     next();
-  } catch (error) {
+  } catch (err) {
     res.clearCookie('resumeAccessToken');
 
-    switch (error.name) {
+    switch (err.name) {
       case 'TokenExpiredError':
-        return res
-          .status(401)
-          .json({ status: 401, message: '인증 정보가 만료되었습니다.' });
+        return res.status(401).json({ status: 401, message: '인증 정보가 만료되었습니다.' });
       case 'JsonWebTokenError':
-        return res
-          .status(401)
-          .json({ status: 401, message: '인증 정보가 유효하지 않습니다.' });
+        return res.status(401).json({ status: 401, message: '인증 정보가 유효하지 않습니다.' });
       default:
         return res.status(401).json({
           status: 401,
-          message: error.message ?? '비정상적인 접근입니다.',
+          message: err.message ?? '비정상적인 접근입니다.',
         });
     }
   }

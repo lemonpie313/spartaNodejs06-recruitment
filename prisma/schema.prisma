@@ -53,7 +53,7 @@ model UserInfos {
   createdAt   DateTime  @default(now())       @map("created_at")
   updatedAt   DateTime  @updatedAt            @map("updated_at")
 
-  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  users Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@map("user_infos")
 }
@@ -67,7 +67,7 @@ model MyResumes {
   createdAt   DateTime  @default(now())   @map("created_at")
   updatedAt   DateTime  @updatedAt        @map("updated_at")
 
-  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  users Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@map("my_resumes")
 }
