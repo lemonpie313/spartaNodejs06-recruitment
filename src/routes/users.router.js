@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../utils/prisma.util.js';
 import bcrypt from 'bcrypt';
 import authMiddleware from '../middlewares/auth.middleware.js';
-//import { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 dotEnv.config();
 const router = express.Router();
@@ -45,34 +45,39 @@ router.post('/sign-up', async (req, res, next) => {
       return res.status(400).json({ status: 400, message: '비밀번호가 일치하지 않습니다' });
     }
 
-    //비밀번호 암호화
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    //데이터 저장
-    const user = await prisma.Users.create({
-      data: {
-        email,
-        password: hashedPassword,
+    const userInfo = await prisma.$transaction(
+      async (tx) => {
+        const user = await tx.Users.create({
+          data: {
+            email,
+            password: hashedPassword,
+          },
+        });
+        const userInfo = await tx.UserInfos.create({
+          data: {
+            userId: user.userId,
+            email,
+            name,
+            password: hashedPassword,
+          },
+          select: {
+            userId: true,
+            email: true,
+            name: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        });
+        return userInfo;
       },
-    });
-    const userInfo = await prisma.UserInfos.create({
-      data: {
-        userId: user.userId,
-        email,
-        name,
-        password: hashedPassword,
+      {
+        isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
       },
-      select: {
-        userId: true,
-        email: true,
-        name: true,
-        position: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    );
 
-    //반환
     return res.status(201).json({
       status: 201,
       message: '회원가입이 완료되었습니다.',
@@ -149,7 +154,7 @@ router.get('/my-page', authMiddleware, async (req, res, next) => {
         userId: true,
         email: true,
         name: true,
-        position: true,
+        role: true,
         createdAt: true,
         updatedAt: true,
       },

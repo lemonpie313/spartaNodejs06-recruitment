@@ -20,7 +20,7 @@ export default async function (req, res, next) {
       where: { userId: +userId },
       select: {
         userId: true,
-        position: true,
+        role: true,
       },
     });
     if (!user) {

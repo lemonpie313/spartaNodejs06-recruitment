@@ -2,7 +2,7 @@ import express from 'express';
 import dotEnv from 'dotenv';
 import { prisma } from '../utils/prisma.util.js';
 import authMiddleware from '../middlewares/auth.middleware.js';
-import requireRoles from '../middlewares/position.middleware.js';
+import requireRoles from '../middlewares/role.middleware.js';
 //import { Prisma } from '@prisma/client';
 
 dotEnv.config();
@@ -14,7 +14,7 @@ router.post('/resume', authMiddleware, async (req, res, next) => {
 
     const { title, content } = req.body;
 
-    if (!title.trim()) {
+    if (!title) {
       return res.status(400).json({ status: 400, message: '제목을 입력해주세요.' });
     } else if (!content) {
       return res.status(400).json({ status: 400, message: '내용을 입력해주세요.' });
@@ -25,7 +25,7 @@ router.post('/resume', authMiddleware, async (req, res, next) => {
       });
     }
 
-    const myResume = await prisma.myResumes.create({
+    const myResume = await prisma.Resume.create({
       data: {
         userId,
         title,
@@ -52,14 +52,14 @@ router.post('/resume', authMiddleware, async (req, res, next) => {
 
 router.get('/resume', authMiddleware, async (req, res, next) => {
   try {
-    const { userId, position } = req.user;
+    const { userId, role } = req.user;
 
     const { sort, status } = req.query;
 
-    const myPage = await prisma.MyResumes.findMany({
+    const myPage = await prisma.Resume.findMany({
       where: {
         userId:
-          position == 'APPLICANT'
+          role == 'APPLICANT'
             ? userId
             : {
                 gt: 0,
@@ -99,14 +99,14 @@ router.get('/resume', authMiddleware, async (req, res, next) => {
 
 router.get('/resume/:id', authMiddleware, async (req, res, next) => {
   try {
-    const { userId, position } = req.user;
+    const { userId, role } = req.user;
     const resumeId = req.params.id;
 
-    const myResume = await prisma.MyResumes.findFirst({
+    const myResume = await prisma.Resume.findFirst({
       where: {
         resumeId: +resumeId,
         userId:
-          position == 'APPLICANT'
+          role == 'APPLICANT'
             ? userId
             : {
                 gt: 0,
@@ -152,12 +152,7 @@ router.patch('/resume/:id', authMiddleware, async (req, res, next) => {
 
     if (!title && !content) {
       return res.status(400).json({ status: 400, message: '수정할 내용을 입력해주세요.' });
-    } else if (!title.trim()) {
-      return res.status(400).json({
-        status: 400,
-        message: '이력서 제목은 1글자 이상 작성해야 합니다.',
-      });
-    } else if (content.length < 150) {
+    } else if (content && content.length < 150) {
       return res.status(400).json({
         status: 400,
         message: '이력서 내용은 150자 이상 작성해야 합니다.',
@@ -166,7 +161,7 @@ router.patch('/resume/:id', authMiddleware, async (req, res, next) => {
 
     const editResume = { title, content };
 
-    const findResume = await prisma.MyResumes.findFirst({
+    const findResume = await prisma.Resume.findFirst({
       where: {
         userId,
         resumeId: +resumeId,
@@ -180,9 +175,11 @@ router.patch('/resume/:id', authMiddleware, async (req, res, next) => {
       });
     }
 
-    const myResume = await prisma.MyResumes.update({
+    const myResume = await prisma.Resume.update({
       data: {
-        ...editResume,
+        //...editResume,
+        title,
+        content,
       },
       where: {
         userId,
@@ -214,7 +211,7 @@ router.delete('/resume/:id', authMiddleware, async (req, res, next) => {
     const { userId } = req.user;
     const resumeId = req.params.id;
 
-    const findResume = await prisma.MyResumes.findFirst({
+    const findResume = await prisma.Resume.findFirst({
       where: {
         userId,
         resumeId: +resumeId,
@@ -228,7 +225,7 @@ router.delete('/resume/:id', authMiddleware, async (req, res, next) => {
       });
     }
 
-    await prisma.MyResumes.delete({
+    await prisma.Resume.delete({
       where: {
         userId,
         resumeId: +resumeId,
