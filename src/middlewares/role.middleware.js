@@ -2,8 +2,6 @@ const requireRoles = function (requireRole) {
   return async function (req, res, next) {
     try {
       const { userId, role } = req.user;
-      console.log(requireRole);
-      console.log(role);
       if (!requireRole.includes(role)) {
         throw new Error('접근 권한이 없습니다.');
       }

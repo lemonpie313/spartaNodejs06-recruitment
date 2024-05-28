@@ -38,7 +38,8 @@ model Users {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   userInfos UserInfos?
-  myResumes MyResumes[]
+  resume    Resume[]
+  resumeLog ResumeLog[]
 
   @@map("users")
 }
@@ -58,7 +59,7 @@ model UserInfos {
   @@map("user_infos")
 }
 
-model MyResumes {
+model Resume {
   resumeId    Int       @id               @default(autoincrement())  @map("resume_id")
   userId      Int       @map("user_id")
   title       String    @map("title")
@@ -68,8 +69,24 @@ model MyResumes {
   updatedAt   DateTime  @updatedAt        @map("updated_at")
 
   users Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  resumeLog   ResumeLog[]
 
-  @@map("my_resumes")
+  @@map("resume")
+}
+
+model ResumeLog {
+  resumeLogId     Int       @id                       @default(autoincrement())   @map("resume_log_id")
+  recruiterId     Int       @map("user_id")
+  resumeId        Int       @map("resume_id")
+  status          Status    @map("status")
+  previousStatus  Status    @map("previous_status")
+  reason          String    @map("reason")            @db.Text
+  createdAt       DateTime  @default(now())           @map("created_at")
+
+  users   Users   @relation(fields: [recruiterId], references: [userId], onDelete: Cascade)
+  resume  Resume  @relation(fields: [resumeId], references: [resumeId], onDelete: Cascade)
+
+  @@map("resume_log")
 }
 
 
