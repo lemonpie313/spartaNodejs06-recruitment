@@ -114,6 +114,10 @@ router.post('/sign-in', async (req, res, next) => {
       where: {
         email,
       },
+      select: {
+        userId: true,
+        password: true,
+      },
     });
     if (!userInfo) {
       return res.status(404).json({
@@ -128,14 +132,35 @@ router.post('/sign-in', async (req, res, next) => {
       });
     }
 
-    //accessToken 발급 및 반환
+    //accessToken, refreshToken 발급 및 반환
     const accessToken = jwt.sign({ id: userInfo.userId }, process.env.ACCESS_TOKEN_SECRET_KEY, { expiresIn: '12h' });
-    res.cookie('resumeAccessToken', `Bearer ${accessToken}`);
+    res.cookie('Authorization', `Bearer ${accessToken}`);
+
+    const refreshTokenRaw = jwt.sign(
+      {
+        id: userInfo.userId,
+      },
+      process.env.REFRESH_TOKEN_SECRET_KEY,
+      { expiresIn: '7d' },
+    );
+
+    const refreshToken = await bcrypt.hash(`${refreshTokenRaw}`, 10);
+    res.cookie('Refresh', `Bearer ${refreshTokenRaw}`);
+
+    const date = new Date();
+    date.setTime(date.getTime() + 7 * 24 * 60 * 60 * 1000);
+    await prisma.RefreshToken.create({
+      data: {
+        userId: userInfo.userId,
+        token: refreshToken,
+        expiresAt: date,
+      },
+    });
 
     //반환
     res.status(200).json({
       status: 200,
-      message: '로그인에 완료되었습니다.',
+      message: '로그인 되었습니다.',
     });
   } catch (err) {
     next(err);
