@@ -1,38 +1,51 @@
 import jwt from 'jsonwebtoken';
 import { prisma } from '../utils/prisma.util.js';
+import bcrypt from 'bcrypt';
 import dotEnv from 'dotenv';
 
 dotEnv.config();
 
 export default async function (req, res, next) {
   try {
-    const { Authorization } = req.cookies;
-    if (!Authorization) throw new Error('인증 정보가 없습니다.');
+    const { Refresh } = req.cookies;
+    if (!Refresh) throw new Error('인증 정보가 없습니다.');
 
-    const [tokenType, token] = Authorization.split(' ');
-
+    const [tokenType, tokenRaw] = Refresh.split(' ');
     if (tokenType !== 'Bearer') throw new Error('지원하지 않는 인증방식입니다.');
 
-    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET_KEY);
+    const decodedToken = jwt.verify(tokenRaw, process.env.REFRESH_TOKEN_SECRET_KEY);
     const userId = decodedToken.id;
+    console.log(userId);
 
-    const user = await prisma.UserInfos.findFirst({
-      where: { userId: +userId },
+    const tokenUser = await prisma.RefreshToken.findFirst({
+      where: {
+        userId: +userId,
+      },
       select: {
         userId: true,
-        role: true,
+        token: true,
+        expiresAt: true,
       },
     });
-    if (!user) {
-      res.clearCookie('Authorization');
+
+    if (!tokenUser) {
+      res.clearCookie('Refresh');
       throw new Error('인증 정보와 일치하는 사용자가 없습니다.');
     }
 
-    // req.user에 사용자 정보를 저장합니다.
-    req.user = user;
+    const date = new Date();
+    console.log(date);
+    console.log(tokenUser.expiresAt);
+
+    if (!(await bcrypt.compare(tokenRaw, tokenUser.token)) || tokenUser.expiresAt < date) {
+      res.clearCookie('Refresh');
+      throw new Error('폐기된 인증정보입니다.');
+    }
+
+    req.user = tokenUser;
     next();
   } catch (err) {
-    res.clearCookie('Authorization');
+    res.clearCookie('Refresh');
 
     switch (err.name) {
       case 'TokenExpiredError':

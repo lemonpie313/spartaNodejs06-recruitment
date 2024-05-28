@@ -87,6 +87,8 @@ router.get('/resume', authMiddleware, async (req, res, next) => {
       },
     });
 
+    console.log(myPage);
+
     return res.status(200).json({
       status: 200,
       message: '이력서 조회에 성공했습니다.',
@@ -231,7 +233,6 @@ router.delete('/resume/:id', authMiddleware, async (req, res, next) => {
         resumeId: +resumeId,
       },
     });
-
     return res.status(200).json({
       status: 200,
       message: '이력서 삭제가 완료되었습니다.',

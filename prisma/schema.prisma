@@ -37,9 +37,10 @@ model Users {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  userInfos UserInfos?
-  resume    Resume[]
-  resumeLog ResumeLog[]
+  userInfos     UserInfos?
+  resume        Resume[]
+  resumeLog     ResumeLog[]
+  refreshToken  RefreshToken?
 
   @@map("users")
 }
@@ -87,6 +88,17 @@ model ResumeLog {
   resume  Resume  @relation(fields: [resumeId], references: [resumeId], onDelete: Cascade)
 
   @@map("resume_log")
+}
+
+model RefreshToken {
+  tokenId     Int       @id                 @default(autoincrement())   @map("token_id")
+  userId      Int       @unique             @map("user_id")
+  token       String    @map("token")       @db.Text
+  expiresAt   DateTime  @map("expires_at")
+  createdAt   DateTime  @default(now())     @map("created_at")
+
+  users   Users   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  @@map("refresh_token")
 }
 
 
