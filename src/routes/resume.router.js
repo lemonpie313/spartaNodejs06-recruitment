@@ -150,9 +150,9 @@ router.patch('/resume/:id', authMiddleware, requireRoles(['APPLICANT']), async (
     const resumeId = req.params.id;
     const { title, content } = req.body;
 
-    if (!title && !content) {
+    if ((!title && !content) || title == '') {
       return res.status(400).json({ status: 400, message: '수정할 내용을 입력해주세요.' });
-    } else if (content && content.length < 150) {
+    } else if (content == '' || content.length < 150) {
       return res.status(400).json({
         status: 400,
         message: '이력서 내용은 150자 이상 작성해야 합니다.',

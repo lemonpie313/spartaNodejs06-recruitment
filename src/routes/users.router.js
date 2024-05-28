@@ -149,13 +149,31 @@ router.post('/sign-in', async (req, res, next) => {
 
     const date = new Date();
     date.setTime(date.getTime() + 7 * 24 * 60 * 60 * 1000);
-    await prisma.RefreshToken.create({
-      data: {
+    const isAlreadyToken = await prisma.RefreshToken.findFirst({
+      where: {
         userId: userInfo.userId,
-        token: refreshToken,
-        expiresAt: date,
       },
     });
+
+    if (!isAlreadyToken) {
+      await prisma.RefreshToken.create({
+        data: {
+          userId: userInfo.userId,
+          token: refreshToken,
+          expiresAt: date,
+        },
+      });
+    } else {
+      await prisma.RefreshToken.update({
+        data: {
+          token: refreshToken,
+          expiresAt: date,
+        },
+        where: {
+          userId: userInfo.userId,
+        },
+      });
+    }
 
     //반환
     res.status(200).json({

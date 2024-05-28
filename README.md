@@ -11,6 +11,31 @@ https://drawsql.app/teams/own-64/diagrams/spartanodejs04-resume
 ## 프로젝트 소개
 express.js, mySQL을 이용하여 채용 서비스 백엔드 서버를 구현하여 이력서 작성, 조회, 수정, 삭제가 가능하도록 하였다.
 
+### 서버 사용을 위한 사용자 정보 설명
+#### 1) 채용 담당자
+- email : admin@naver.com
+- password : 000000
+
+#### 2) 지원자 1
+- email : aaaan@naver.com
+- password : 000000
+
+#### 3) 지원자 2
+- email : bbbb@naver.com
+- password : 000000
+
+#### 4) 지원자 3
+- email : cccc@naver.com
+- password : 000000
+
+#### 5) 지원자 4
+- email : dddd@naver.com
+- password : 000000
+
+#### 6) 지원자 5
+- email : eeee@naver.com
+- password : 000000
+
 ## 코드 설명
 회원가입과 로그인을 제외한 모든 기능은 로그인 된 사용자(AccessToken 보유)에 한해 접근 가능하다.
 ### 1. 미들웨어
@@ -50,16 +75,30 @@ express.js, mySQL을 이용하여 채용 서비스 백엔드 서버를 구현하
 
 - **delete - /log-out** : 사용자가 보유하고 있는 RefreshToken과 AccessToken을 삭제하여 더이상 기능을 사용할 수 없도록 하는 로그아웃 기능을 한다. 로그아웃 한 뒤 RefreshToken은 db에서도 삭제된다.
 
-## 해결하지 못한 사항
+## 문제 발생 및 해결
 ### 1. 중복 로그인
 로그인을 한 상태에서 한번 더 같은 이메일주소로 로그인을 했을 때, 에러가 발생한다.
-RefreshToken을 저장하는 db에 userId를 unique로 지정했기 때문인데, 중복 로그인으로 에러가 발생했을 때 에러메시지를 설정하거나 새 토큰을 발급받는 기능을 추가해야 할것 같다.
+RefreshToken을 저장하는 db에 userId를 unique로 지정했기 때문이다.
+
+이 경우 RefreshToken 테이블에서 해당 userId를 가진 데이터가 존재하는지 확인한 후, 데이터가 이미 있다면 토큰과 만기일을 업데이트하고, 없다면 새 토큰 데이터를 추가하도록 코드를 수정하였다.
 
 ### 2. 이력서 수정 시 공백
-이력서 수정 시 다음과 같이 데이터가 전달될 경우 에러가 발생하지 않고 이력서가 업데이트 된다. 논리연산자를 사용했을 때 title 혹은 content에 수정사항이 없는 것으로 분류가 되었기 때문인데, 논리연산자가 아닌 다른 방법을 사용하여 유효성 검증을 진행해야 할것 같다.
+이력서 수정 시 다음과 같이 데이터가 전달될 경우 에러가 발생하지 않고 이력서가 업데이트 된다. 논리연산자를 사용했을 때 title 혹은 content에 수정사항이 없는 것으로 분류가 되었기 때문에 버그가 나타났다.
 ```
 {
 	"title": "",
 	"content":""
+}
+```
+
+논리연산자 뿐 아니라, title과 content가 빈 문자열인지 여부를 확인하는 유효성 검증을 추가하였다.
+```
+if ((!title && !content) || title=="") {
+    return res.status(400).json({ status: 400, message: '수정할 내용을 입력해주세요.' });
+} else if (content == '' || content.length < 150) {
+    return res.status(400).json({
+    status: 400,
+    message: '이력서 내용은 150자 이상 작성해야 합니다.',
+    });
 }
 ```
