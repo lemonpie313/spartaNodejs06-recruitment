@@ -90,7 +90,6 @@ router.patch('/resume/recruiter/:id', authMiddleware, requireRoles(['RECRUITER']
 router.get('/resume/recruiter/:id', authMiddleware, requireRoles(['RECRUITER']), async (req, res, next) => {
   try {
     const resumeId = req.params.id;
-    const userId = req.user;
 
     const resumeLog = await prisma.ResumeLog.findMany({
       where: {

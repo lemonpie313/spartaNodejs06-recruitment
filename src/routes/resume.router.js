@@ -87,8 +87,6 @@ router.get('/resume', authMiddleware, async (req, res, next) => {
       },
     });
 
-    console.log(myPage);
-
     return res.status(200).json({
       status: 200,
       message: '이력서 조회에 성공했습니다.',
@@ -160,8 +158,6 @@ router.patch('/resume/:id', authMiddleware, async (req, res, next) => {
         message: '이력서 내용은 150자 이상 작성해야 합니다.',
       });
     }
-
-    const editResume = { title, content };
 
     const findResume = await prisma.Resume.findFirst({
       where: {
