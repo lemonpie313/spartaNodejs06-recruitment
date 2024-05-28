@@ -39,6 +39,14 @@ export default async function (req, res, next) {
 
     if (!(await bcrypt.compare(tokenRaw, tokenUser.token)) || tokenUser.expiresAt < date) {
       res.clearCookie('Refresh');
+      await prisma.RefreshToken.delete({
+        where: {
+          userId: +userId,
+        },
+        select: {
+          userId: true,
+        },
+      });
       throw new Error('폐기된 인증정보입니다.');
     }
 

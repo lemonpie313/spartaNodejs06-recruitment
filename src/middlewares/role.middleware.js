@@ -6,7 +6,7 @@ const requireRoles = function (requireRole) {
         throw new Error('접근 권한이 없습니다.');
       }
 
-      req.user = { userId, role };
+      req.user = { userId };
       return next();
     } catch (err) {
       return res.status(401).json({

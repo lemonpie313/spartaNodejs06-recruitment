@@ -8,7 +8,7 @@ import requireRoles from '../middlewares/role.middleware.js';
 dotEnv.config();
 const router = express.Router();
 
-router.post('/resume', authMiddleware, async (req, res, next) => {
+router.post('/resume', authMiddleware, requireRoles(['APPLICANT']), async (req, res, next) => {
   try {
     const { userId } = req.user;
 
@@ -144,7 +144,7 @@ router.get('/resume/:id', authMiddleware, async (req, res, next) => {
   }
 });
 
-router.patch('/resume/:id', authMiddleware, async (req, res, next) => {
+router.patch('/resume/:id', authMiddleware, requireRoles(['APPLICANT']), async (req, res, next) => {
   try {
     const { userId } = req.user;
     const resumeId = req.params.id;
@@ -204,7 +204,7 @@ router.patch('/resume/:id', authMiddleware, async (req, res, next) => {
   }
 });
 
-router.delete('/resume/:id', authMiddleware, async (req, res, next) => {
+router.delete('/resume/:id', authMiddleware, requireRoles(['APPLICANT']), async (req, res, next) => {
   try {
     const { userId } = req.user;
     const resumeId = req.params.id;
