@@ -243,6 +243,3 @@ router.delete('/resume/:id', authMiddleware, async (req, res, next) => {
 });
 
 export default router;
-
-
-
