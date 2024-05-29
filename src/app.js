@@ -12,6 +12,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api', [userRouter, resumeRouter, recruiterRouter, tokenRouter]);
+
+app.get('/', (req, res) => {
+  res.send('루트!!');
+});
 app.use(errorHandler);
 
 app.listen(PORT, () => {
