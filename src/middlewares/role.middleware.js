@@ -3,7 +3,10 @@ const requireRoles = function (requireRole) {
     try {
       const { userId, role } = req.user;
       if (!requireRole.includes(role)) {
-        throw new Error('접근 권한이 없습니다.');
+        return res.status(401).json({
+          status: 403,
+          message: '접근 권한이 없습니다.',
+        });
       }
 
       req.user = { userId };
