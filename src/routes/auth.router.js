@@ -3,28 +3,20 @@ import dotEnv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../utils/prisma.util.js';
 import bcrypt from 'bcrypt';
-import authMiddleware from '../middlewares/auth.middleware.js';
 import { Prisma } from '@prisma/client';
+import authMiddleware from '../middlewares/auth.middleware.js';
+import tokenMiddleware from '../middlewares/token.middleware.js';
+import { signUpValidator, signInValidator } from '../middlewares/joi/auth.joi.middleware.js';
+//import { signInValidator } from '../middlewares/joi/sign-in.joi.middleware.js';
 
 dotEnv.config();
 const router = express.Router();
 
 /* 회원가입 */
-router.post('/sign-up', async (req, res, next) => {
+router.post('/sign-up', signUpValidator, async (req, res, next) => {
   try {
     //req.body에서 정보 받아오기
-    const { email, password, passwordConfirm, name } = req.body;
-
-    //정보 기입 오류 시 에러
-    if (!email) {
-      return res.status(400).json({ status: 400, message: '이메일 주소를 입력해주세요.' });
-    } else if (!password) {
-      return res.status(400).json({ status: 400, message: '비밀번호를 입력해주세요.' });
-    } else if (!passwordConfirm) {
-      return res.status(400).json({ status: 400, message: '비밀번호 확인을 입력해주세요.' });
-    } else if (!name) {
-      return res.status(400).json({ status: 400, message: '이름을 입력해주세요.' });
-    }
+    const { email, password, name } = req.body;
 
     const isExistEmail = await prisma.Users.findFirst({
       where: {
@@ -33,16 +25,6 @@ router.post('/sign-up', async (req, res, next) => {
     });
     if (isExistEmail) {
       return res.status(409).json({ status: 409, message: '이미 가입된 사용자입니다.' });
-    }
-    const pattern = /^[A-Za-z0-9_\.\-]+@[A-Za-z0-9\-]+\.[A-za-z0-9\-]+/;
-    if (!pattern.test(email)) {
-      return res.status(400).json({ status: 400, message: '이메일 형태가 올바르지 않습니다.' });
-    }
-    if (password.length < 6) {
-      return res.status(400).json({ status: 400, message: '비밀번호는 6자리 이상이어야 합니다.' });
-    }
-    if (password != passwordConfirm) {
-      return res.status(400).json({ status: 400, message: '비밀번호가 일치하지 않습니다' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -89,25 +71,10 @@ router.post('/sign-up', async (req, res, next) => {
 });
 
 /* 로그인 */
-router.post('/sign-in', async (req, res, next) => {
+router.post('/sign-in', signInValidator, async (req, res, next) => {
   try {
     //req.body에서 정보 받아오기
     const { email, password } = req.body;
-
-    //정보 기입 오류 에러처리
-    if (!email) {
-      return res.status(400).json({ status: 400, message: '이메일 주소를 입력해주세요.' });
-    } else if (!password) {
-      return res.status(400).json({ status: 400, message: '비밀번호를 입력해주세요.' });
-    }
-
-    const pattern = /^[A-Za-z0-9_\.\-]+@[A-Za-z0-9\-]+\.[A-za-z0-9\-]+/;
-    if (!pattern.test(email)) {
-      return res.status(400).json({
-        status: 400,
-        message: '이메일 형태가 올바르지 않습니다.',
-      });
-    }
 
     //해당하는 회원 정보 가져오기
     const userInfo = await prisma.Users.findFirst({
@@ -210,6 +177,26 @@ router.get('/my-page', authMiddleware, async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+/* 로그아웃 */
+router.delete('/log-out', tokenMiddleware, async (req, res, next) => {
+  const { userId } = req.user;
+  const logOutUser = await prisma.RefreshToken.delete({
+    where: {
+      userId,
+    },
+    select: {
+      userId: true,
+    },
+  });
+  res.clearCookie('Refresh');
+  res.clearCookie('Authorization');
+  res.status(200).json({
+    status: 200,
+    message: '로그아웃 되었습니다.',
+    data: logOutUser,
+  });
 });
 
 export default router;

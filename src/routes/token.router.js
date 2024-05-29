@@ -48,23 +48,4 @@ router.get('/refresh', tokenMiddleware, async (req, res, next) => {
   }
 });
 
-router.delete('/log-out', tokenMiddleware, async (req, res, next) => {
-  const { userId } = req.user;
-  const logOutUser = await prisma.RefreshToken.delete({
-    where: {
-      userId,
-    },
-    select: {
-      userId: true,
-    },
-  });
-  res.clearCookie('Refresh');
-  res.clearCookie('Authorization');
-  res.status(200).json({
-    status: 200,
-    message: '로그아웃 되었습니다.',
-    data: logOutUser,
-  });
-});
-
 export default router;
