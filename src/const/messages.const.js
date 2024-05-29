@@ -23,13 +23,26 @@ export const MESSAGES = {
     },
   },
   RES: {
-    COMMON: {
+    CREATE: {
       TITLE: {
         REQUIRED: '제목을 입력해주세요.',
       },
       CONTENT: {
         REQUIRED: '내용을 입력해주세요.',
         MIN_LENGTH: '이력서 내용은 150자 이상 작성해야 합니다.',
+      },
+    },
+    UPDATE: {
+      REQUIRED: '수정할 내용을 입력해주세요.',
+      MIN_LENGTH: '이력서 내용은 150자 이상 작성해야 합니다.',
+    },
+    RECRUITER: {
+      STATUS: {
+        REQUIRED: '변경하고자 하는 상태를 확인해주세요.',
+        INVALID_FORMAT: '유효하지 않은 지원상태입니다.',
+      },
+      REASON: {
+        REQUIRED: '지원 상태 변경 사유를 입력해주세요.',
       },
     },
   },

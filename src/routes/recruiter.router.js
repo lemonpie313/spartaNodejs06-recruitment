@@ -4,25 +4,16 @@ import { prisma } from '../utils/prisma.util.js';
 import authMiddleware from '../middlewares/auth.middleware.js';
 import requireRoles from '../middlewares/role.middleware.js';
 import { Prisma } from '@prisma/client';
+import { recruiterEditValidator } from '../middlewares/joi/recruiter.joi.middleware.js';
 
 dotEnv.config();
 const router = express.Router();
 
-router.patch('/resume/recruiter/:id', authMiddleware, requireRoles(['RECRUITER']), async (req, res, next) => {
+router.patch('/resume/recruiter/:id', authMiddleware, requireRoles(['RECRUITER']), recruiterEditValidator, async (req, res, next) => {
   try {
     const { userId } = req.user;
     const resumeId = req.params.id;
     const { status, reason } = req.body;
-
-    const statusList = ['APPLY', 'DROP', 'INTERVIEW1', 'INTERVIEW2', 'FINAL_PASS'];
-
-    if (!status) {
-      return res.status(400).json({ status: 400, message: '변경하고자 하는 상태를 확인해주세요.' });
-    } else if (!statusList.includes(status)) {
-      return res.status(400).json({ status: 400, message: '유효하지 않은 지원상태입니다.' });
-    } else if (!reason) {
-      return res.status(400).json({ status: 400, message: '지원 상태 변경 사유를 입력해주세요.' });
-    }
 
     const findResume = await prisma.Resume.findFirst({
       where: {

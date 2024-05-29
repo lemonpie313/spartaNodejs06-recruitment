@@ -3,13 +3,13 @@ import dotEnv from 'dotenv';
 import { prisma } from '../utils/prisma.util.js';
 import authMiddleware from '../middlewares/auth.middleware.js';
 import requireRoles from '../middlewares/role.middleware.js';
-import { resumeValidator } from '../middlewares/joi/resume.joi.middleware.js';
+import { createResumeValidator, editResumeValidator } from '../middlewares/joi/resume.joi.middleware.js';
 //import { Prisma } from '@prisma/client';
 
 dotEnv.config();
 const router = express.Router();
 
-router.post('/resume', authMiddleware, requireRoles(['APPLICANT']), resumeValidator, async (req, res, next) => {
+router.post('/resume', authMiddleware, requireRoles(['APPLICANT']), createResumeValidator, async (req, res, next) => {
   try {
     const { userId } = req.user;
 
@@ -145,21 +145,12 @@ router.get('/resume/:id', authMiddleware, async (req, res, next) => {
   }
 });
 
-router.patch('/resume/:id', authMiddleware, requireRoles(['APPLICANT']), async (req, res, next) => {
+router.patch('/resume/:id', authMiddleware, requireRoles(['APPLICANT']), editResumeValidator, async (req, res, next) => {
   try {
     const { userId } = req.user;
     const resumeId = req.params.id;
     const { title, content } = req.body;
-
-    if ((!title && !content) || title == '') {
-      return res.status(400).json({ status: 400, message: '수정할 내용을 입력해주세요.' });
-    } else if (content == '' || content.length < 150) {
-      return res.status(400).json({
-        status: 400,
-        message: '이력서 내용은 150자 이상 작성해야 합니다.',
-      });
-    }
-
+    console.log('타이틀');
     const findResume = await prisma.Resume.findFirst({
       where: {
         userId,
@@ -176,7 +167,6 @@ router.patch('/resume/:id', authMiddleware, requireRoles(['APPLICANT']), async (
 
     const myResume = await prisma.Resume.update({
       data: {
-        //...editResume,
         title,
         content,
       },

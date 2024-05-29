@@ -1,21 +1,43 @@
 import Joi from 'joi';
 import { MESSAGES } from '../../const/messages.const.js';
 
-const schema = Joi.object({
+const createResumeSchema = Joi.object({
   title: Joi.string().required().messages({
-    'any.required': MESSAGES.RES.COMMON.TITLE.REQUIRED,
+    'any.required': MESSAGES.RES.CREATE.TITLE.REQUIRED,
   }),
   content: Joi.string().required().min(150).messages({
-    'any.required': MESSAGES.RES.COMMON.CONTENT.REQUIRED,
-    'string.min': MESSAGES.RES.COMMON.CONTENT.MIN_LENGTH,
+    'any.required': MESSAGES.RES.CREATE.CONTENT.REQUIRED,
+    'string.min': MESSAGES.RES.CREATE.CONTENT.MIN_LENGTH,
   }),
 });
 
-export const resumeValidator = async (req, res, next) => {
+const editResumeSchema = Joi.object({
+  title: Joi.string(),
+  content: Joi.string().min(150).messages({
+    'string.min': MESSAGES.RES.UPDATE.MIN_LENGTH,
+  }),
+})
+  .min(1)
+  .messages({
+    'object.min': MESSAGES.RES.UPDATE.REQUIRED,
+  });
+
+const createResumeValidator = async (req, res, next) => {
   try {
-    await schema.validateAsync(req.body);
+    await createResumeSchema.validateAsync(req.body);
     next();
   } catch (error) {
     next(error);
   }
 };
+
+const editResumeValidator = async (req, res, next) => {
+  try {
+    await editResumeSchema.validateAsync(req.body);
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { createResumeValidator, editResumeValidator };
