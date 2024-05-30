@@ -5,7 +5,7 @@
 https://taropie313.notion.site/=Node-js-API-e3ec13d5f4944246a2cd1ec939c0afd2
 
 ## ERD
-![ex_screenshot](./ERD.png)
+![ex_screenshot](./ERD_edited.png)
 https://drawsql.app/teams/own-64/diagrams/spartanodejs04-resume
 
 ## 프로젝트 소개
