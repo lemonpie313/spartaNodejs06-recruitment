@@ -1,7 +1,7 @@
 import express from 'express';
 import dotEnv from 'dotenv';
 import { prisma } from '../utils/prisma.util.js';
-import authMiddleware from '../middlewares/auth.middleware.js';
+import authMiddleware from '../middlewares/access-token.middleware.js';
 import requireRoles from '../middlewares/role.middleware.js';
 import { Prisma } from '@prisma/client';
 import { recruiterEditValidator } from '../middlewares/joi/recruiter.joi.middleware.js';

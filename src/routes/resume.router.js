@@ -1,7 +1,7 @@
 import express from 'express';
 import dotEnv from 'dotenv';
 import { prisma } from '../utils/prisma.util.js';
-import authMiddleware from '../middlewares/auth.middleware.js';
+import accessTokenMiddleware from '../middlewares/access-token.middleware.js';
 import requireRoles from '../middlewares/role.middleware.js';
 import { createResumeValidator, editResumeValidator } from '../middlewares/joi/resume.joi.middleware.js';
 //import { Prisma } from '@prisma/client';
@@ -9,7 +9,7 @@ import { createResumeValidator, editResumeValidator } from '../middlewares/joi/r
 dotEnv.config();
 const router = express.Router();
 
-router.post('/resume', authMiddleware, requireRoles(['APPLICANT']), createResumeValidator, async (req, res, next) => {
+router.post('/resume', accessTokenMiddleware, requireRoles(['APPLICANT']), createResumeValidator, async (req, res, next) => {
   try {
     const { userId } = req.user;
 
@@ -51,7 +51,7 @@ router.post('/resume', authMiddleware, requireRoles(['APPLICANT']), createResume
   }
 });
 
-router.get('/resume', authMiddleware, async (req, res, next) => {
+router.get('/resume', accessTokenMiddleware, async (req, res, next) => {
   try {
     const { userId, role } = req.user;
 
@@ -98,7 +98,7 @@ router.get('/resume', authMiddleware, async (req, res, next) => {
   }
 });
 
-router.get('/resume/:id', authMiddleware, async (req, res, next) => {
+router.get('/resume/:id', accessTokenMiddleware, async (req, res, next) => {
   try {
     const { userId, role } = req.user;
     const resumeId = req.params.id;
@@ -145,7 +145,7 @@ router.get('/resume/:id', authMiddleware, async (req, res, next) => {
   }
 });
 
-router.patch('/resume/:id', authMiddleware, requireRoles(['APPLICANT']), editResumeValidator, async (req, res, next) => {
+router.patch('/resume/:id', accessTokenMiddleware, requireRoles(['APPLICANT']), editResumeValidator, async (req, res, next) => {
   try {
     const { userId } = req.user;
     const resumeId = req.params.id;
@@ -195,7 +195,7 @@ router.patch('/resume/:id', authMiddleware, requireRoles(['APPLICANT']), editRes
   }
 });
 
-router.delete('/resume/:id', authMiddleware, requireRoles(['APPLICANT']), async (req, res, next) => {
+router.delete('/resume/:id', accessTokenMiddleware, requireRoles(['APPLICANT']), async (req, res, next) => {
   try {
     const { userId } = req.user;
     const resumeId = req.params.id;
