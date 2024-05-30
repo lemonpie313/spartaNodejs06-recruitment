@@ -1,12 +1,9 @@
 import express from 'express';
-import dotEnv from 'dotenv';
 import { prisma } from '../utils/prisma.util.js';
 import accessTokenMiddleware from '../middlewares/access-token.middleware.js';
 import requireRoles from '../middlewares/role.middleware.js';
 import { createResumeValidator, editResumeValidator } from '../middlewares/joi/resume.joi.middleware.js';
-//import { Prisma } from '@prisma/client';
 
-dotEnv.config();
 const router = express.Router();
 
 router.post('/resume', accessTokenMiddleware, requireRoles(['APPLICANT']), createResumeValidator, async (req, res, next) => {

@@ -1,10 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { prisma } from '../utils/prisma.util.js';
 import bcrypt from 'bcrypt';
-import dotEnv from 'dotenv';
 import { MESSAGES } from '../const/messages.const.js';
-
-dotEnv.config();
 
 export default async function (req, res, next) {
   try {
@@ -32,8 +29,10 @@ export default async function (req, res, next) {
         token: true,
       },
     });
-    const date = new Date();
-    if (!(await bcrypt.compareSync(refreshToken, tokenUser.token)) || tokenUser.expiresAt < date) {
+    if (!tokenUser) {
+      throw new Error('인증 정보가 만료되었습니다.');
+    }
+    if (!(await bcrypt.compareSync(refreshToken, tokenUser.token))) {
       res.clearCookie('Refresh');
       await prisma.RefreshToken.delete({
         where: {

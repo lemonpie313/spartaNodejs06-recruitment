@@ -7,7 +7,6 @@ import authMiddleware from '../middlewares/access-token.middleware.js';
 import tokenMiddleware from '../middlewares/refresh-token.middleware.js';
 import { MESSAGES } from '../const/messages.const.js';
 import { signUpValidator, signInValidator } from '../middlewares/joi/auth.joi.middleware.js';
-//import { signInValidator } from '../middlewares/joi/sign-in.joi.middleware.js';
 
 const router = express.Router();
 
@@ -168,8 +167,6 @@ router.delete('/log-out', tokenMiddleware, async (req, res, next) => {
       userId: true,
     },
   });
-  res.clearCookie('Refresh');
-  res.clearCookie('Authorization');
   res.status(200).json({
     status: 200,
     message: MESSAGES.AUTH.LOGOUT.SUCCEED,
