@@ -2,6 +2,8 @@ import express from 'express';
 import { prisma } from '../utils/prisma.util.js';
 import accessTokenMiddleware from '../middlewares/access-token.middleware.js';
 import requireRoles from '../middlewares/role.middleware.js';
+import { MESSAGES } from '../const/messages.const.js';
+import { HTTP_STATUS } from '../const/http-status.const.js';
 import { createResumeValidator, editResumeValidator } from '../middlewares/joi/resume.joi.middleware.js';
 
 const router = express.Router();
@@ -13,13 +15,13 @@ router.post('/resume', accessTokenMiddleware, requireRoles(['APPLICANT']), creat
     const { title, content } = req.body;
 
     if (!title) {
-      return res.status(400).json({ status: 400, message: '제목을 입력해주세요.' });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ status: HTTP_STATUS.BAD_REQUEST, message: MESSAGES.RES.CREATE.TITLE_REQUIRED });
     } else if (!content) {
-      return res.status(400).json({ status: 400, message: '내용을 입력해주세요.' });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ status: HTTP_STATUS.BAD_REQUEST, message: MESSAGES.RES.CREATE.TITLE_REQUIRED });
     } else if (content.length < 150) {
-      return res.status(400).json({
-        status: 400,
-        message: '이력서 내용은 150자 이상 작성해야 합니다.',
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        status: HTTP_STATUS.BAD_REQUEST,
+        message: MESSAGES.RES.CREATE.CONTENT_MIN_LENGTH,
       });
     }
 
@@ -38,9 +40,9 @@ router.post('/resume', accessTokenMiddleware, requireRoles(['APPLICANT']), creat
       },
     });
 
-    return res.status(201).json({
-      status: 201,
-      message: '이력서 등록이 완료되었습니다.',
+    return res.status(HTTP_STATUS.CREATED).json({
+      status: HTTP_STATUS.CREATED,
+      message: MESSAGES.RES.CREATE.SUCCEED,
       data: { myResume },
     });
   } catch (err) {
@@ -85,9 +87,9 @@ router.get('/resume', accessTokenMiddleware, async (req, res, next) => {
       },
     });
 
-    return res.status(200).json({
-      status: 200,
-      message: '이력서 조회에 성공했습니다.',
+    return res.status(HTTP_STATUS.OK).json({
+      status: HTTP_STATUS.OK,
+      message: MESSAGES.RES.READ.SUCCEED,
       data: { myPage },
     });
   } catch (err) {
@@ -126,15 +128,15 @@ router.get('/resume/:id', accessTokenMiddleware, async (req, res, next) => {
     });
 
     if (!myResume) {
-      return res.status(404).json({
-        status: 404,
-        message: '이력서가 존재하지 않습니다.',
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        status: HTTP_STATUS.FORBIDDEN,
+        message: MESSAGES.RES.COMMON.FAILED,
       });
     }
 
-    return res.status(200).json({
-      status: 200,
-      message: '이력서 상세조회에 성공했습니다.',
+    return res.status(HTTP_STATUS.OK).json({
+      status: HTTP_STATUS.OK,
+      message: MESSAGES.RES.READ_ONE.SUCCEED,
       data: { myResume },
     });
   } catch (err) {
@@ -156,9 +158,9 @@ router.patch('/resume/:id', accessTokenMiddleware, requireRoles(['APPLICANT']), 
     });
 
     if (!findResume) {
-      return res.status(404).json({
-        status: 404,
-        message: '이력서가 존재하지 않습니다.',
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        status: HTTP_STATUS.FORBIDDEN,
+        message: MESSAGES.RES.COMMON.FAILED,
       });
     }
 
@@ -182,9 +184,9 @@ router.patch('/resume/:id', accessTokenMiddleware, requireRoles(['APPLICANT']), 
       },
     });
 
-    return res.status(200).json({
-      status: 200,
-      message: '이력서 수정이 완료되었습니다.',
+    return res.status(HTTP_STATUS.OK).json({
+      status: HTTP_STATUS.OK,
+      message: MESSAGES.RES.UPDATE.SUCCEED,
       data: { myResume },
     });
   } catch (err) {
@@ -205,9 +207,9 @@ router.delete('/resume/:id', accessTokenMiddleware, requireRoles(['APPLICANT']),
     });
 
     if (!findResume) {
-      return res.status(404).json({
-        status: 404,
-        message: '이력서가 존재하지 않습니다.',
+      return res.status(HTTP_STATUS.FORBIDDEN).json({
+        status: HTTP_STATUS.FORBIDDEN,
+        message: MESSAGES.RES.COMMON.FAILED,
       });
     }
 
@@ -217,9 +219,9 @@ router.delete('/resume/:id', accessTokenMiddleware, requireRoles(['APPLICANT']),
         resumeId: +resumeId,
       },
     });
-    return res.status(200).json({
-      status: 200,
-      message: '이력서 삭제가 완료되었습니다.',
+    return res.status(HTTP_STATUS.OK).json({
+      status: HTTP_STATUS.OK,
+      message: MESSAGES.RES.DELETE.SUCCEED,
       data: { userId: userId },
     });
   } catch (err) {

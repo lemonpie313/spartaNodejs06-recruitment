@@ -2,21 +2,22 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../utils/prisma.util.js';
 import bcrypt from 'bcrypt';
 import { MESSAGES } from '../const/messages.const.js';
+import { HTTP_STATUS } from '../const/http-status.const.js';
 
 export default async function (req, res, next) {
   try {
     const authorization = req.headers.authorization;
     if (!authorization) {
-      return res.status(401).json({ status: 401, message: MESSAGES.JWT.NONE });
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: MESSAGES.JWT.NONE });
     }
 
     const [tokenType, refreshToken] = authorization.split(' ');
 
     if (tokenType !== 'Bearer') {
-      return res.status(401).json({ status: 401, message: MESSAGES.JWT.NOT_TYPE });
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: MESSAGES.JWT.NOT_TYPE });
     }
     if (!refreshToken) {
-      return res.status(401).json({ status: 401, message: MESSAGES.JWT.NONE });
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: MESSAGES.JWT.NONE });
     }
 
     const decodedToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET_KEY);
@@ -56,12 +57,12 @@ export default async function (req, res, next) {
 
     switch (err.name) {
       case 'TokenExpiredError':
-        return res.status(401).json({ status: 401, message: '인증 정보가 만료되었습니다.' });
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: '인증 정보가 만료되었습니다.' });
       case 'JsonWebTokenError':
-        return res.status(401).json({ status: 401, message: '인증 정보가 유효하지 않습니다.' });
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: '인증 정보가 유효하지 않습니다.' });
       default:
-        return res.status(401).json({
-          status: 401,
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+          status: HTTP_STATUS.UNAUTHORIZED,
           message: err.message ?? '비정상적인 접근입니다.',
         });
     }

@@ -4,8 +4,9 @@ import { prisma } from '../utils/prisma.util.js';
 import bcrypt from 'bcrypt';
 import { Prisma } from '@prisma/client';
 import authMiddleware from '../middlewares/access-token.middleware.js';
-import tokenMiddleware from '../middlewares/refresh-token.middleware.js';
+import refreshMiddleware from '../middlewares/refresh-token.middleware.js';
 import { MESSAGES } from '../const/messages.const.js';
+import { HTTP_STATUS } from '../const/http-status.const.js';
 import { signUpValidator, signInValidator } from '../middlewares/joi/auth.joi.middleware.js';
 
 const router = express.Router();
@@ -22,7 +23,7 @@ router.post('/sign-up', signUpValidator, async (req, res, next) => {
       },
     });
     if (isExistEmail) {
-      return res.status(409).json({ status: 409, message: MESSAGES.AUTH.SIGN_UP.ISEXIST });
+      return res.status(HTTP_STATUS.CONFLICT).json({ status: HTTP_STATUS.CONFLICT, message: MESSAGES.AUTH.SIGN_UP.ISEXIST });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -58,8 +59,8 @@ router.post('/sign-up', signUpValidator, async (req, res, next) => {
       },
     );
 
-    return res.status(201).json({
-      status: 201,
+    return res.status(HTTP_STATUS.CREATED).json({
+      status: HTTP_STATUS.CREATED,
       message: MESSAGES.AUTH.SIGN_UP.SUCCEED,
       data: { userInfo },
     });
@@ -85,14 +86,14 @@ router.post('/sign-in', signInValidator, async (req, res, next) => {
       },
     });
     if (!user) {
-      return res.status(404).json({
-        status: 404,
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        status: HTTP_STATUS.NOT_FOUND,
         message: MESSAGES.AUTH.SIGN_IN.ISNOTEXIST,
       });
     }
     if (!(await bcrypt.compare(password, user.password))) {
-      return res.status(400).json({
-        status: 400,
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        status: HTTP_STATUS.BAD_REQUEST,
         message: MESSAGES.AUTH.SIGN_IN.PW_NOT_MATCHED,
       });
     }
@@ -100,8 +101,8 @@ router.post('/sign-in', signInValidator, async (req, res, next) => {
     const payload = { id: user.userId };
     const data = await token(payload);
 
-    res.status(200).json({
-      status: 200,
+    res.status(HTTP_STATUS.OK).json({
+      status: HTTP_STATUS.OK,
       message: MESSAGES.AUTH.SIGN_IN.SUCCEED,
       data,
     });
@@ -111,7 +112,7 @@ router.post('/sign-in', signInValidator, async (req, res, next) => {
 });
 
 /* 회원정보 조회 */
-router.get('/my-page', authMiddleware, async (req, res, next) => {
+router.get('/auth/my-page', authMiddleware, async (req, res, next) => {
   try {
     const user = req.user;
     const userInfo = await prisma.UserInfos.findFirst({
@@ -127,8 +128,8 @@ router.get('/my-page', authMiddleware, async (req, res, next) => {
         updatedAt: true,
       },
     });
-    return res.status(201).json({
-      status: 201,
+    return res.status(HTTP_STATUS.OK).json({
+      status: HTTP_STATUS.OK,
       message: MESSAGES.AUTH.READ.SUCCEED,
       data: { userInfo },
     });
@@ -138,7 +139,7 @@ router.get('/my-page', authMiddleware, async (req, res, next) => {
 });
 
 /* 토큰 재발급 */
-router.get('/refresh', tokenMiddleware, async (req, res, next) => {
+router.get('/refresh', refreshMiddleware, async (req, res, next) => {
   try {
     const user = req.user;
 
@@ -146,8 +147,8 @@ router.get('/refresh', tokenMiddleware, async (req, res, next) => {
 
     const data = await token(payload);
 
-    res.status(200).json({
-      status: 200,
+    res.status(HTTP_STATUS.OK).json({
+      status: HTTP_STATUS.OK,
       message: '토큰 생성이 완료되었습니다.',
       data,
     });
@@ -157,7 +158,7 @@ router.get('/refresh', tokenMiddleware, async (req, res, next) => {
 });
 
 /* 로그아웃 */
-router.delete('/log-out', tokenMiddleware, async (req, res, next) => {
+router.delete('/log-out', refreshMiddleware, async (req, res, next) => {
   const { userId } = req.user;
   const logOutUser = await prisma.RefreshToken.delete({
     where: {
@@ -167,8 +168,8 @@ router.delete('/log-out', tokenMiddleware, async (req, res, next) => {
       userId: true,
     },
   });
-  res.status(200).json({
-    status: 200,
+  res.status(HTTP_STATUS.OK).json({
+    status: HTTP_STATUS.OK,
     message: MESSAGES.AUTH.LOGOUT.SUCCEED,
     data: logOutUser,
   });

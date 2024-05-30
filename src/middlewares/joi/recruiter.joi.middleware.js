@@ -6,11 +6,11 @@ const recruiterEditSchema = Joi.object({
   status: Joi.string()
     .valid(...Object.values(RESUME_STATUS))
     .messages({
-      'any.required': MESSAGES.RES.RECRUITER.STATUS.REQUIRED,
-      'any.only': MESSAGES.RES.RECRUITER.STATUS.INVALID_FORMAT,
+      'any.required': MESSAGES.RECRUITER.UPDATE.STATUS_REQUIRED,
+      'any.only': MESSAGES.RECRUITER.UPDATE.INVALID_FORMAT,
     }),
   reason: Joi.string().required().messages({
-    'any.required': MESSAGES.RES.RECRUITER.REASON.REQUIRED,
+    'any.required': MESSAGES.RECRUITER.UPDATE.REASON_REQUIRED,
   }),
 });
 

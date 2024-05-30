@@ -3,11 +3,11 @@ import { MESSAGES } from '../../const/messages.const.js';
 
 const createResumeSchema = Joi.object({
   title: Joi.string().required().messages({
-    'any.required': MESSAGES.RES.CREATE.TITLE.REQUIRED,
+    'any.required': MESSAGES.RES.CREATE.TITLE_REQUIRED,
   }),
   content: Joi.string().required().min(150).messages({
-    'any.required': MESSAGES.RES.CREATE.CONTENT.REQUIRED,
-    'string.min': MESSAGES.RES.CREATE.CONTENT.MIN_LENGTH,
+    'any.required': MESSAGES.RES.CREATE.CONTENT_REQUIRED,
+    'string.min': MESSAGES.RES.CREATE.CONTENT_MIN_LENGTH,
   }),
 });
 

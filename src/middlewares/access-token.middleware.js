@@ -1,22 +1,23 @@
 import jwt from 'jsonwebtoken';
 import { prisma } from '../utils/prisma.util.js';
 import { MESSAGES } from '../const/messages.const.js';
+import { HTTP_STATUS } from '../const/http-status.const.js';
 
 export default async function (req, res, next) {
   try {
     const authorization = req.headers.authorization;
     if (!authorization) {
-      return res.status(401).json({ status: 401, message: MESSAGES.JWT.NONE });
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: MESSAGES.JWT.NONE });
     }
 
     const [tokenType, accessToken] = authorization.split(' ');
 
     if (tokenType !== 'Bearer') {
-      return res.status(401).json({ status: 401, message: MESSAGES.JWT.NOT_TYPE });
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: MESSAGES.JWT.NOT_TYPE });
     }
 
     if (!accessToken) {
-      return res.status(401).json({ status: 401, message: MESSAGES.JWT.NONE });
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: MESSAGES.JWT.NONE });
     }
 
     const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET_KEY);
@@ -30,7 +31,7 @@ export default async function (req, res, next) {
       },
     });
     if (!user) {
-      return res.status(401).json({ status: 401, message: MESSAGES.JWT.NO_MATCH });
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: MESSAGES.JWT.NO_MATCH });
     }
 
     req.user = user;
@@ -38,12 +39,12 @@ export default async function (req, res, next) {
   } catch (err) {
     switch (err.name) {
       case 'TokenExpiredError':
-        return res.status(401).json({ status: 401, message: MESSAGES.JWT.EXPIRED });
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: MESSAGES.JWT.EXPIRED });
       case 'JsonWebTokenError':
-        return res.status(401).json({ status: 401, message: MESSAGES.JWT.NOT_AVAILABLE });
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: MESSAGES.JWT.NOT_AVAILABLE });
       default:
-        return res.status(401).json({
-          status: 401,
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+          status: HTTP_STATUS.UNAUTHORIZED,
           message: err.message ?? MESSAGES.JWT.ELSE,
         });
     }

@@ -19,11 +19,11 @@ export const MESSAGES = {
       },
     },
     SIGN_UP: {
-      ISEXIST: '이미 가입된 사용자입니다.',
+      IS_EXIST: '이미 가입된 사용자입니다.',
       SUCCEED: '회원가입에 성공했습니다.',
     },
     SIGN_IN: {
-      ISNOTEXIST: '회원 정보를 찾을 수 없습니다.',
+      IS_NOT_EXIST: '회원 정보를 찾을 수 없습니다.',
       PW_NOT_MATCHED: '비밀번호가 일치하지 않습니다.',
       SUCCEED: '로그인 되었습니다.',
     },
@@ -36,26 +36,40 @@ export const MESSAGES = {
   },
   RES: {
     CREATE: {
-      TITLE: {
-        REQUIRED: '제목을 입력해주세요.',
-      },
-      CONTENT: {
-        REQUIRED: '내용을 입력해주세요.',
-        MIN_LENGTH: '이력서 내용은 150자 이상 작성해야 합니다.',
-      },
+      TITLE_REQUIRED: '제목을 입력해주세요.',
+      CONTENT_REQUIRED: '내용을 입력해주세요.',
+      CONTENT_MIN_LENGTH: '이력서 내용은 150자 이상 작성해야 합니다.',
+      SUCCEED: '이력서 작성이 완료되었습니다.',
+    },
+    READ: {
+      SUCCEED: '이력서 조회에 성공했습니다.',
+    },
+    READ_ONE: {
+      SUCCEED: '이력서 상세조회에 성공했습니다.',
     },
     UPDATE: {
       REQUIRED: '수정할 내용을 입력해주세요.',
       MIN_LENGTH: '이력서 내용은 150자 이상 작성해야 합니다.',
+      SUCCEED: '이력서 수정이 완료되었습니다.',
     },
-    RECRUITER: {
-      STATUS: {
-        REQUIRED: '변경하고자 하는 상태를 확인해주세요.',
-        INVALID_FORMAT: '유효하지 않은 지원상태입니다.',
-      },
-      REASON: {
-        REQUIRED: '지원 상태 변경 사유를 입력해주세요.',
-      },
+    DELETE: {
+      SUCCEED: '이력서 삭제가 완료되었습니다.',
+    },
+    COMMON: {
+      FAILED: '이력서가 존재하지 않습니다.',
+    },
+  },
+  RECRUITER: {
+    UPDATE: {
+      FAILED: '이력서가 존재하지 않습니다.',
+      STATUS_REQUIRED: '변경하고자 하는 상태를 확인해주세요.',
+      INVALID_FORMAT: '유효하지 않은 지원상태입니다.',
+      REASON_REQUIRED: '지원 상태 변경 사유를 입력해주세요.',
+      SUCCEED: '이력서 상태 수정이 완료되었습니다.',
+    },
+    LOG: {
+      FAILED: '이력서가 존재하지 않습니다.',
+      SUCCEED: '이력서 로그 조회에 성공하였습니다.',
     },
   },
   JWT: {
@@ -66,4 +80,9 @@ export const MESSAGES = {
     NOT_AVAILABLE: '인증 정보가 유효하지 않습니다.',
     ELSE: '비정상적인 접근입니다.',
   },
+  ROLE: {
+    FORBIDDEN: '접근 권한이 없습니다.',
+    ERROR: '비정상적인 접근입니다.',
+  },
+  ERROR: '예상치 못한 에러가 발생했습니다. 관리자에게 문의해 주세요.',
 };
