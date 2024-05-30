@@ -1,28 +1,19 @@
 import express from 'express';
-import dotEnv from 'dotenv';
 import { prisma } from '../utils/prisma.util.js';
-import authMiddleware from '../middlewares/auth.middleware.js';
+import authMiddleware from '../middlewares/access-token.middleware.js';
 import requireRoles from '../middlewares/role.middleware.js';
+import { MESSAGES } from '../const/messages.const.js';
+import { HTTP_STATUS } from '../const/http-status.const.js';
 import { Prisma } from '@prisma/client';
+import { recruiterEditValidator } from '../middlewares/joi/recruiter.joi.middleware.js';
 
-dotEnv.config();
 const router = express.Router();
 
-router.patch('/resume/recruiter/:id', authMiddleware, requireRoles(['RECRUITER']), async (req, res, next) => {
+router.patch('/recruiter/resume/:id', authMiddleware, requireRoles(['RECRUITER']), recruiterEditValidator, async (req, res, next) => {
   try {
     const { userId } = req.user;
     const resumeId = req.params.id;
     const { status, reason } = req.body;
-
-    const statusList = ['APPLY', 'DROP', 'INTERVIEW1', 'INTERVIEW2', 'FINAL_PASS'];
-
-    if (!status) {
-      return res.status(400).json({ status: 400, message: '변경하고자 하는 상태를 확인해주세요.' });
-    } else if (!statusList.includes(status)) {
-      return res.status(400).json({ status: 400, message: '유효하지 않은 지원상태입니다.' });
-    } else if (!reason) {
-      return res.status(400).json({ status: 400, message: '지원 상태 변경 사유를 입력해주세요.' });
-    }
 
     const findResume = await prisma.Resume.findFirst({
       where: {
@@ -34,9 +25,9 @@ router.patch('/resume/recruiter/:id', authMiddleware, requireRoles(['RECRUITER']
     });
 
     if (!findResume) {
-      return res.status(404).json({
-        status: 404,
-        message: '이력서가 존재하지 않습니다.',
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        status: HTTP_STATUS.NOT_FOUND,
+        message: MESSAGES.RECRUITER.UPDATE.FAILED,
       });
     }
 
@@ -77,9 +68,9 @@ router.patch('/resume/recruiter/:id', authMiddleware, requireRoles(['RECRUITER']
       },
     );
 
-    return res.status(200).json({
-      status: 200,
-      message: '이력서 상태 수정이 완료되었습니다.',
+    return res.status(HTTP_STATUS.OK).json({
+      status: HTTP_STATUS.OK,
+      message: MESSAGES.RECRUITER.UPDATE.SUCCEED,
       data: resumeLog,
     });
   } catch (err) {
@@ -87,9 +78,22 @@ router.patch('/resume/recruiter/:id', authMiddleware, requireRoles(['RECRUITER']
   }
 });
 
-router.get('/resume/recruiter/:id', authMiddleware, requireRoles(['RECRUITER']), async (req, res, next) => {
+router.get('/recruiter/resume/:id', authMiddleware, requireRoles(['RECRUITER']), async (req, res, next) => {
   try {
     const resumeId = req.params.id;
+
+    const resume = await prisma.Resume.findFirst({
+      where: {
+        resumeId: +resumeId,
+      },
+    });
+
+    if (!resume) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        status: HTTP_STATUS.NOT_FOUND,
+        message: MESSAGES.RECRUITER.LOG.FAILED,
+      });
+    }
 
     const resumeLog = await prisma.ResumeLog.findMany({
       where: {
@@ -117,9 +121,9 @@ router.get('/resume/recruiter/:id', authMiddleware, requireRoles(['RECRUITER']),
       },
     });
 
-    return res.status(200).json({
-      status: 200,
-      message: '이력서 로그 조회에 성공했습니다.',
+    return res.status(HTTP_STATUS.OK).json({
+      status: HTTP_STATUS.OK,
+      message: MESSAGES.RECRUITER.LOG.SUCCEED,
       data: { resumeLog },
     });
   } catch (err) {
