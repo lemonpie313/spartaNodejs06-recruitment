@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../utils/prisma.util.js';
 import bcrypt from 'bcrypt';
 import { Prisma } from '@prisma/client';
-import authMiddleware from '../middlewares/access-token.middleware.js';
 import refreshMiddleware from '../middlewares/refresh-token.middleware.js';
 import { MESSAGES } from '../const/messages.const.js';
 import { HTTP_STATUS } from '../const/http-status.const.js';
@@ -111,33 +110,6 @@ router.post('/sign-in', signInValidator, async (req, res, next) => {
   }
 });
 
-/* 회원정보 조회 */
-router.get('/auth/my-page', authMiddleware, async (req, res, next) => {
-  try {
-    const user = req.user;
-    const userInfo = await prisma.UserInfos.findFirst({
-      where: {
-        userId: +user.userId,
-      },
-      select: {
-        userId: true,
-        email: true,
-        name: true,
-        role: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-    return res.status(HTTP_STATUS.OK).json({
-      status: HTTP_STATUS.OK,
-      message: MESSAGES.AUTH.READ.SUCCEED,
-      data: { userInfo },
-    });
-  } catch (err) {
-    next(err);
-  }
-});
-
 /* 토큰 재발급 */
 router.get('/refresh', refreshMiddleware, async (req, res, next) => {
   try {
@@ -181,7 +153,7 @@ const token = async function (payload) {
 
   const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET_KEY, { expiresIn: '7d' });
 
-  const refreshTokenHashed = await bcrypt.hash(`${refreshToken}`, 10);
+  const refreshTokenHashed = await bcrypt.hash(refreshToken, 10);
 
   await prisma.RefreshToken.upsert({
     where: {
