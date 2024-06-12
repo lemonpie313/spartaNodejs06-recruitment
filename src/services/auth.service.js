@@ -33,12 +33,7 @@ export class AuthService {
     if (!(await bcrypt.compare(password, user.password))) {
       throw new Error('비밀번호가 일치하지 않습니다.');
     }
-    const payload = { id: user.userId };
-    const userId = payload.id;
-    const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET_KEY, { expiresIn: '12h' });
-    const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET_KEY, { expiresIn: '7d' });
-    const refreshTokenHashed = await bcrypt.hash(refreshToken, 10);
-    await this.authRepository.upsertToken(userId, refreshTokenHashed);
+    const { accessToken, refreshToken } = await this.refreshToken(user.userId);
     return { accessToken, refreshToken };
   };
 
