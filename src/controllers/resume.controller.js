@@ -58,4 +58,41 @@ export class ResumeController {
       next(err);
     }
   };
+
+  //이력서 수정
+  updateResume = async (req, res, next) => {
+    try {
+      const { userId } = req.user;
+      const resumeId = req.params.id;
+      const { title, content } = req.body;
+
+      const resume = await this.resumeService.updateResume(userId, +resumeId, title, content);
+
+      return res.status(HTTP_STATUS.OK).json({
+        status: HTTP_STATUS.OK,
+        message: MESSAGES.RES.UPDATE.SUCCEED,
+        data: { resume },
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  //이력서 삭제
+  deleteResume = async (req, res, next) => {
+    try {
+      const { userId } = req.user;
+      const resumeId = req.params.id;
+
+      await this.resumeService.deleteResume(userId, +resumeId);
+
+      return res.status(HTTP_STATUS.OK).json({
+        status: HTTP_STATUS.OK,
+        message: MESSAGES.RES.DELETE.SUCCEED,
+        data: { userId },
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
 }

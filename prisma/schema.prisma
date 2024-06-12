@@ -38,14 +38,14 @@ model Users {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  resume       Resume[]
+  resume       Resumes[]
   resumeLog    ResumeLog[]
-  refreshToken RefreshToken?
+  refreshToken RefreshTokens?
 
   @@map("users")
 }
 
-model Resume {
+model Resumes {
   resumeId  Int      @id @default(autoincrement()) @map("resume_id")
   userId    Int      @map("user_id")
   title     String   @map("title")
@@ -57,7 +57,7 @@ model Resume {
   users     Users       @relation(fields: [userId], references: [userId], onDelete: Cascade)
   resumeLog ResumeLog[]
 
-  @@map("resume")
+  @@map("resumes")
 }
 
 model ResumeLog {
@@ -70,12 +70,12 @@ model ResumeLog {
   createdAt      DateTime @default(now()) @map("created_at")
 
   users  Users  @relation(fields: [recruiterId], references: [userId], onDelete: Cascade)
-  resume Resume @relation(fields: [resumeId], references: [resumeId], onDelete: Cascade)
+  resume Resumes @relation(fields: [resumeId], references: [resumeId], onDelete: Cascade)
 
   @@map("resume_log")
 }
 
-model RefreshToken {
+model RefreshTokens {
   tokenId   Int      @id @default(autoincrement()) @map("token_id")
   userId    Int      @unique @map("user_id")
   token     String   @map("token") @db.Text
@@ -83,5 +83,5 @@ model RefreshToken {
 
   users Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
-  @@map("refresh_token")
+  @@map("refresh_tokens")
 }

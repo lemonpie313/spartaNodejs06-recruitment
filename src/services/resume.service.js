@@ -39,4 +39,23 @@ export class ResumeService {
     }
     return resume;
   };
+
+  //이력서 수정
+  updateResume = async (userId, resumeId, title, content) => {
+    const findResume = await this.resumeRepository.getResumeByUserId(userId, resumeId);
+    if (!findResume) {
+      throw new Error(MESSAGES.RES.COMMON.FAILED);
+    }
+    const resume = await this.resumeRepository.updateResume(userId, resumeId, title, content);
+    return resume;
+  };
+
+  //이력서 삭제
+  deleteResume = async (userId, resumeId) => {
+    const findResume = await this.resumeRepository.getResumeByUserId(userId, resumeId);
+    if (!findResume) {
+      throw new Error(MESSAGES.RES.COMMON.FAILED);
+    }
+    await this.resumeRepository.deleteResume(userId, resumeId);
+  };
 }

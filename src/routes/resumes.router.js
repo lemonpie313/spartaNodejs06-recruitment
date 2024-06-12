@@ -22,90 +22,10 @@ router.get('/', accessTokenMiddleware, resumeController.getAllResumes);
 router.get('/:id', accessTokenMiddleware, resumeController.getResume);
 
 //이력서 수정
-router.patch('/:id', accessTokenMiddleware, requireRoles(['APPLICANT']), editResumeValidator, async (req, res, next) => {
-  try {
-    const { userId } = req.user;
-    const resumeId = req.params.id;
-    const { title, content } = req.body;
-    console.log('타이틀');
-    const findResume = await prisma.Resume.findFirst({
-      where: {
-        userId,
-        resumeId: +resumeId,
-      },
-    });
+router.patch('/:id', accessTokenMiddleware, requireRoles(['APPLICANT']), editResumeValidator, resumeController.updateResume);
 
-    if (!findResume) {
-      return res.status(HTTP_STATUS.FORBIDDEN).json({
-        status: HTTP_STATUS.FORBIDDEN,
-        message: MESSAGES.RES.COMMON.FAILED,
-      });
-    }
-
-    const myResume = await prisma.Resume.update({
-      data: {
-        title,
-        content,
-      },
-      where: {
-        userId,
-        resumeId: +resumeId,
-      },
-      select: {
-        resumeId: true,
-        userId: true,
-        title: true,
-        content: true,
-        status: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-
-    return res.status(HTTP_STATUS.OK).json({
-      status: HTTP_STATUS.OK,
-      message: MESSAGES.RES.UPDATE.SUCCEED,
-      data: { myResume },
-    });
-  } catch (err) {
-    next(err);
-  }
-});
-
-router.delete('/:id', accessTokenMiddleware, requireRoles(['APPLICANT']), async (req, res, next) => {
-  try {
-    const { userId } = req.user;
-    const resumeId = req.params.id;
-
-    const findResume = await prisma.Resume.findFirst({
-      where: {
-        userId,
-        resumeId: +resumeId,
-      },
-    });
-
-    if (!findResume) {
-      return res.status(HTTP_STATUS.FORBIDDEN).json({
-        status: HTTP_STATUS.FORBIDDEN,
-        message: MESSAGES.RES.COMMON.FAILED,
-      });
-    }
-
-    await prisma.Resume.delete({
-      where: {
-        userId,
-        resumeId: +resumeId,
-      },
-    });
-    return res.status(HTTP_STATUS.OK).json({
-      status: HTTP_STATUS.OK,
-      message: MESSAGES.RES.DELETE.SUCCEED,
-      data: { userId: userId },
-    });
-  } catch (err) {
-    next(err);
-  }
-});
+//이력서 삭제
+router.delete('/:id', accessTokenMiddleware, requireRoles(['APPLICANT']), resumeController.deleteResume);
 
 router.patch('/recruiter/:id', accessTokenMiddleware, requireRoles(['RECRUITER']), recruiterEditValidator, async (req, res, next) => {
   try {

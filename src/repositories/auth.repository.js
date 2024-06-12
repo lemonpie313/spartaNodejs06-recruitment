@@ -35,7 +35,7 @@ export class AuthRepository {
 
   //토큰 생성
   upsertToken = async (userId, refreshTokenHashed) => {
-    await prisma.RefreshToken.upsert({
+    await prisma.RefreshTokens.upsert({
       where: {
         userId,
       },
@@ -51,7 +51,7 @@ export class AuthRepository {
 
   //토큰 조회
   findTokenById = async (userId) => {
-    const tokenUser = await prisma.refreshToken.findFirst({
+    const tokenUser = await prisma.refreshTokens.findFirst({
       where: { userId: +userId },
     });
     return tokenUser;
@@ -59,7 +59,7 @@ export class AuthRepository {
 
   //토큰 삭제
   deleteToken = async (userId) => {
-    const logOutUser = await prisma.RefreshToken.delete({
+    const logOutUser = await prisma.RefreshTokens.delete({
       where: {
         userId,
       },
