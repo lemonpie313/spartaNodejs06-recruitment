@@ -1,11 +1,12 @@
-import { AuthRepository } from '../repositories/auth.repository.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { MESSAGES } from '../const/messages.const.js';
 import { HttpError } from '../error/http.error.js';
 
 export class AuthService {
-  authRepository = new AuthRepository();
+  constructor(authRepository) {
+    this.authRepository = authRepository;
+  }
 
   //회원가입
   signUp = async (email, password, name) => {

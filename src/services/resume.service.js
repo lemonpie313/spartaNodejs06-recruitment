@@ -1,11 +1,12 @@
-import { ResumeRepository } from '../repositories/resume.repository.js';
 import { ROLE } from '../const/role.const.js';
 import { SORT } from '../const/sort.const.js';
 import { MESSAGES } from '../const/messages.const.js';
 import { HttpError } from '../error/http.error.js';
 
 export class ResumeService {
-  resumeRepository = new ResumeRepository();
+  constructor(resumeRepository) {
+    this.resumeRepository = resumeRepository;
+  }
 
   //이력서 생성
   createResume = async (userId, title, content) => {

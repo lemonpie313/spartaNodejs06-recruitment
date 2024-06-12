@@ -1,9 +1,10 @@
-import { AuthService } from '../services/auth.service.js';
 import { MESSAGES } from '../const/messages.const.js';
 import { HTTP_STATUS } from '../const/http-status.const.js';
 
 export class AuthController {
-  authService = new AuthService();
+  constructor(authService) {
+    this.authService = authService;
+  }
 
   //회원가입
   signUp = async (req, res, next) => {

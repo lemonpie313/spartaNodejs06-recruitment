@@ -1,10 +1,13 @@
-import { prisma } from '../utils/prisma.util.js';
 import { Prisma } from '@prisma/client';
 
 export class ResumeRepository {
+  constructor(prisma) {
+    this.prisma = prisma;
+  }
+
   //이력서 생성
   createResume = async (userId, title, content) => {
-    const myResume = await prisma.Resumes.create({
+    const myResume = await this.prisma.Resumes.create({
       data: {
         userId,
         title,
@@ -23,7 +26,7 @@ export class ResumeRepository {
 
   //모든 이력서 목록 조회
   getAllResumes = async (status) => {
-    const resumes = await prisma.Resumes.findMany({
+    const resumes = await this.prisma.Resumes.findMany({
       where: {
         status,
       },
@@ -33,7 +36,7 @@ export class ResumeRepository {
 
   //아이디에 해당하는 이력서 목록 조회
   getAllResumesById = async (userId, status) => {
-    const resumes = await prisma.Resumes.findMany({
+    const resumes = await this.prisma.Resumes.findMany({
       where: {
         userId,
         status,
@@ -56,7 +59,7 @@ export class ResumeRepository {
 
   //이력서 상세조회
   getResumeById = async (resumeId) => {
-    const resume = await prisma.Resumes.findFirst({
+    const resume = await this.prisma.Resumes.findFirst({
       where: {
         resumeId,
       },
@@ -79,7 +82,7 @@ export class ResumeRepository {
 
   //내 이력서 상세조회
   getResumeByUserId = async (userId, resumeId) => {
-    const resume = await prisma.Resumes.findFirst({
+    const resume = await this.prisma.Resumes.findFirst({
       where: {
         resumeId,
         userId,
@@ -103,7 +106,7 @@ export class ResumeRepository {
 
   //이력서 수정
   updateResume = async (userId, resumeId, title, content) => {
-    const resume = await prisma.Resumes.update({
+    const resume = await this.prisma.Resumes.update({
       data: {
         title,
         content,
@@ -118,7 +121,7 @@ export class ResumeRepository {
 
   //이력서 삭제
   deleteResume = async (userId, resumeId) => {
-    await prisma.Resumes.delete({
+    await this.prisma.Resumes.delete({
       where: {
         userId,
         resumeId,
@@ -128,7 +131,7 @@ export class ResumeRepository {
 
   //채용관리자 이력서 상태 수정
   updateResumeStatus = async (userId, resumeId, status, reason, previousStatus) => {
-    const resumeLog = await prisma.$transaction(
+    const resumeLog = await this.prisma.$transaction(
       async (tx) => {
         await tx.Resumes.update({
           data: {
@@ -169,7 +172,7 @@ export class ResumeRepository {
 
   //채용관리자 이력서 로그 조회
   getResumeLogById = async (resumeId) => {
-    const resumeLog = await prisma.ResumeLog.findMany({
+    const resumeLog = await this.prisma.ResumeLog.findMany({
       where: {
         resumeId,
       },
