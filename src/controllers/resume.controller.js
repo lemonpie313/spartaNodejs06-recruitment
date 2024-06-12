@@ -95,4 +95,32 @@ export class ResumeController {
       next(err);
     }
   };
+
+  //채용관리자 이력서 상태 수정
+  updateResumeStatus = async (req, res, next) => {
+    const { userId } = req.user;
+    const resumeId = req.params.id;
+    const { status, reason } = req.body;
+
+    const resumeLog = await this.resumeService.updateResumeStatus(userId, +resumeId, status, reason);
+
+    return res.status(HTTP_STATUS.OK).json({
+      status: HTTP_STATUS.OK,
+      message: MESSAGES.RECRUITER.UPDATE.SUCCEED,
+      data: resumeLog,
+    });
+  };
+
+  //채용관리자 이력서 로그 조회
+  getResumeLog = async (req, res, next) => {
+    const resumeId = req.params.id;
+
+    const resumeLog = await this.resumeService.getResumeLog(+resumeId);
+
+    return res.status(HTTP_STATUS.OK).json({
+      status: HTTP_STATUS.OK,
+      message: MESSAGES.RECRUITER.LOG.SUCCEED,
+      data: { resumeLog },
+    });
+  };
 }

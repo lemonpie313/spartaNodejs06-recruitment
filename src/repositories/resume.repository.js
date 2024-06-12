@@ -1,4 +1,5 @@
 import { prisma } from '../utils/prisma.util.js';
+import { Prisma } from '@prisma/client';
 
 export class ResumeRepository {
   //이력서 생성
@@ -37,6 +38,17 @@ export class ResumeRepository {
         userId,
         status,
       },
+      select: {
+        users: {
+          select: {
+            name: true,
+          },
+        },
+        title: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
     return resumes;
   };
@@ -55,6 +67,7 @@ export class ResumeRepository {
         },
         title: true,
         content: true,
+        status: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -77,6 +90,7 @@ export class ResumeRepository {
         },
         title: true,
         content: true,
+        status: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -107,5 +121,70 @@ export class ResumeRepository {
         resumeId,
       },
     });
+  };
+
+  //채용관리자 이력서 상태 수정
+  updateResumeStatus = async (userId, resumeId, status, reason, previousStatus) => {
+    const resumeLog = await prisma.$transaction(
+      async (tx) => {
+        await tx.Resumes.update({
+          data: {
+            status,
+          },
+          where: {
+            resumeId: +resumeId,
+          },
+        });
+
+        const resumeLog = await tx.ResumeLog.create({
+          data: {
+            recruiterId: userId,
+            resumeId: +resumeId,
+            status,
+            previousStatus,
+            reason,
+          },
+          select: {
+            resumeLogId: true,
+            recruiterId: true,
+            resumeId: true,
+            previousStatus: true,
+            status: true,
+            reason: true,
+            createdAt: true,
+          },
+        });
+
+        return [resumeLog];
+      },
+      {
+        isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
+      },
+    );
+    return resumeLog;
+  };
+
+  //채용관리자 이력서 로그 조회
+  getResumeLogById = async (resumeId) => {
+    const resumeLog = await prisma.ResumeLog.findMany({
+      where: {
+        resumeId,
+      },
+      select: {
+        resumeLogId: true,
+        users: {
+          select: {
+            name: true,
+          },
+        },
+        resumeId: true,
+        previousStatus: true,
+        status: true,
+        reason: true,
+        createdAt: true,
+      },
+    });
+
+    return resumeLog;
   };
 }
