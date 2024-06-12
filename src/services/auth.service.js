@@ -1,6 +1,8 @@
 import { AuthRepository } from '../repositories/auth.repository.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { MESSAGES } from '../const/messages.const.js';
+import { HttpError } from '../error/http.error.js';
 
 export class AuthService {
   authRepository = new AuthRepository();
@@ -9,7 +11,7 @@ export class AuthService {
   signUp = async (email, password, name) => {
     const isExistEmail = await this.authRepository.findUserInfoByEmail(email);
     if (isExistEmail) {
-      throw new Error('이미 존재하는 이메일입니다.');
+      throw new HttpError.Conflict(MESSAGES.AUTH.COMMON.EMAIL.DUPLICATED);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -28,10 +30,10 @@ export class AuthService {
   signIn = async (email, password) => {
     const user = await this.authRepository.findUserInfoByEmail(email);
     if (!user) {
-      throw new Error('존재하지 않는 이메일입니다.');
+      throw new HttpError.NotFound(MESSAGES.AUTH.SIGN_IN.IS_NOT_EXIST);
     }
     if (!(await bcrypt.compare(password, user.password))) {
-      throw new Error('비밀번호가 일치하지 않습니다.');
+      throw new HttpError.Unauthorized(MESSAGES.AUTH.SIGN_IN.PW_NOT_MATCHED);
     }
     const { accessToken, refreshToken } = await this.refreshToken(user.userId);
     return { accessToken, refreshToken };
