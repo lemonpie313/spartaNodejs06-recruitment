@@ -1,9 +1,10 @@
-import { ResumeService } from '../services/resume.service.js';
 import { MESSAGES } from '../const/messages.const.js';
 import { HTTP_STATUS } from '../const/http-status.const.js';
 
 export class ResumeController {
-  resumeService = new ResumeService();
+  constructor(resumeService) {
+    this.resumeService = resumeService;
+  }
 
   //이력서 생성
   createResume = async (req, res, next) => {

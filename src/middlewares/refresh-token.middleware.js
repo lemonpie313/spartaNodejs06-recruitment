@@ -1,12 +1,13 @@
 import jwt from 'jsonwebtoken';
-import { AuthRepository } from '../repositories/auth.repository.js';
 import bcrypt from 'bcrypt';
+import { prisma } from '../utils/prisma.util.js';
+import { AuthRepository } from '../repositories/auth.repository.js';
 import { MESSAGES } from '../const/messages.const.js';
 import { HttpError } from '../error/http.error.js';
 
 export default async function (req, res, next) {
   try {
-    const authRepository = new AuthRepository();
+    const authRepository = new AuthRepository(prisma);
     const authorization = req.headers.authorization;
     if (!authorization) {
       throw new HttpError.Unauthorized(MESSAGES.JWT.NONE);
