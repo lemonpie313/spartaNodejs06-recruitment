@@ -5,7 +5,7 @@ export class AuthRepository {
 
   //id로 유저 찾기
   findUserInfoById = async (userId) => {
-    const userInfo = await this.prisma.Users.findFirst({
+    const userInfo = await this.prisma.users.findFirst({
       where: {
         userId,
       },
@@ -15,7 +15,7 @@ export class AuthRepository {
 
   //이메일로 유저 찾기
   findUserInfoByEmail = async (email) => {
-    const userInfo = await this.prisma.Users.findFirst({
+    const userInfo = await this.prisma.users.findFirst({
       where: {
         email,
       },
@@ -25,7 +25,7 @@ export class AuthRepository {
 
   //유저 정보 생성
   createUserInfo = async (email, hashedPassword, name) => {
-    const userInfo = await this.prisma.Users.create({
+    const userInfo = await this.prisma.users.create({
       data: {
         email,
         name,
@@ -37,7 +37,7 @@ export class AuthRepository {
 
   //토큰 생성
   upsertToken = async (userId, refreshTokenHashed) => {
-    await this.prisma.RefreshTokens.upsert({
+    const token = await this.prisma.refreshTokens.upsert({
       where: {
         userId,
       },
@@ -49,6 +49,7 @@ export class AuthRepository {
         token: refreshTokenHashed,
       },
     });
+    return token;
   };
 
   //토큰 조회
@@ -61,7 +62,7 @@ export class AuthRepository {
 
   //토큰 삭제
   deleteToken = async (userId) => {
-    const logOutUser = await this.prisma.RefreshTokens.delete({
+    const logOutUser = await this.prisma.refreshTokens.delete({
       where: {
         userId,
       },

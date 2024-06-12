@@ -46,7 +46,7 @@ export class AuthService {
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET_KEY, { expiresIn: '12h' });
     const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET_KEY, { expiresIn: '7d' });
     const refreshTokenHashed = await bcrypt.hash(refreshToken, 10);
-    await this.authRepository.upsertToken(userId, refreshTokenHashed);
+    const token = await this.authRepository.upsertToken(userId, refreshTokenHashed);
     return { accessToken, refreshToken };
   };
 
