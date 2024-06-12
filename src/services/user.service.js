@@ -1,7 +1,7 @@
-import { AuthRepository } from '../repositories/auth.repository.js';
-
 export class UserService {
-  authRepository = new AuthRepository();
+  constructor(authRepository) {
+    this.authRepository = authRepository;
+  }
 
   // 회원정보 조회
   findUserInfo = async (userId) => {
