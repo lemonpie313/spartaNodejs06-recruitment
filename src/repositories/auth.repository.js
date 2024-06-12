@@ -1,5 +1,4 @@
 import { prisma } from '../utils/prisma.util.js';
-import { Prisma } from '@prisma/client';
 
 export class AuthRepository {
   //id로 유저 찾기
@@ -48,6 +47,14 @@ export class AuthRepository {
         token: refreshTokenHashed,
       },
     });
+  };
+
+  //토큰 조회
+  findTokenById = async (userId) => {
+    const tokenUser = await prisma.refreshToken.findFirst({
+      where: { userId: +userId },
+    });
+    return tokenUser;
   };
 
   //토큰 삭제

@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken';
-import { prisma } from '../utils/prisma.util.js';
+import { AuthRepository } from '../repositories/auth.repository.js';
 import { MESSAGES } from '../const/messages.const.js';
 import { HTTP_STATUS } from '../const/http-status.const.js';
 
 export default async function (req, res, next) {
   try {
+    const authRepository = new AuthRepository();
     const authorization = req.headers.authorization;
     if (!authorization) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: MESSAGES.JWT.NONE });
@@ -23,13 +24,7 @@ export default async function (req, res, next) {
     const decodedToken = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET_KEY);
     const userId = decodedToken.id;
 
-    const user = await prisma.Users.findFirst({
-      where: { userId: +userId },
-      select: {
-        userId: true,
-        role: true,
-      },
-    });
+    const user = await authRepository.findUserInfoById(userId);
     if (!user) {
       return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: MESSAGES.JWT.NO_MATCH });
     }
