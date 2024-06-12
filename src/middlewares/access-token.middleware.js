@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { AuthRepository } from '../repositories/auth.repository.js';
 import { MESSAGES } from '../const/messages.const.js';
-import { HTTP_STATUS } from '../const/http-status.const.js';
 import { HttpError } from '../error/http.error.js';
 
 export default async function (req, res, next) {
@@ -33,16 +32,6 @@ export default async function (req, res, next) {
     req.user = user;
     next();
   } catch (err) {
-    switch (err.name) {
-      case 'TokenExpiredError':
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: MESSAGES.JWT.EXPIRED });
-      case 'JsonWebTokenError':
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: MESSAGES.JWT.NOT_AVAILABLE });
-      default:
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          status: HTTP_STATUS.UNAUTHORIZED,
-          message: err.message ?? MESSAGES.JWT.ELSE,
-        });
-    }
+    next(err);
   }
 }
