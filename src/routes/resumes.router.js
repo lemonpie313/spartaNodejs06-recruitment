@@ -7,145 +7,21 @@ import { HTTP_STATUS } from '../const/http-status.const.js';
 import { createResumeValidator, editResumeValidator } from '../middlewares/joi/resume.joi.middleware.js';
 import { Prisma } from '@prisma/client';
 import { recruiterEditValidator } from '../middlewares/joi/recruiter.joi.middleware.js';
+import { ResumeController } from '../controllers/resume.controller.js';
 
+const resumeController = new ResumeController();
 const router = express.Router();
 
-router.post('/', accessTokenMiddleware, requireRoles(['APPLICANT']), createResumeValidator, async (req, res, next) => {
-  try {
-    const { userId } = req.user;
+//이력서 작성
+router.post('/', accessTokenMiddleware, requireRoles(['APPLICANT']), createResumeValidator, resumeController.createResume);
 
-    const { title, content } = req.body;
+//이력서 조회
+router.get('/', accessTokenMiddleware, resumeController.getAllResumes);
 
-    if (!title) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({ status: HTTP_STATUS.BAD_REQUEST, message: MESSAGES.RES.CREATE.TITLE_REQUIRED });
-    } else if (!content) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({ status: HTTP_STATUS.BAD_REQUEST, message: MESSAGES.RES.CREATE.TITLE_REQUIRED });
-    } else if (content.length < 150) {
-      return res.status(HTTP_STATUS.BAD_REQUEST).json({
-        status: HTTP_STATUS.BAD_REQUEST,
-        message: MESSAGES.RES.CREATE.CONTENT_MIN_LENGTH,
-      });
-    }
+//이력서 상세 조회
+router.get('/:id', accessTokenMiddleware, resumeController.getResume);
 
-    const myResume = await prisma.Resume.create({
-      data: {
-        userId,
-        title,
-        content,
-      },
-      select: {
-        resumeId: true,
-        title: true,
-        status: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-
-    return res.status(HTTP_STATUS.CREATED).json({
-      status: HTTP_STATUS.CREATED,
-      message: MESSAGES.RES.CREATE.SUCCEED,
-      data: { myResume },
-    });
-  } catch (err) {
-    next(err);
-  }
-});
-
-router.get('/', accessTokenMiddleware, async (req, res, next) => {
-  try {
-    const { userId, role } = req.user;
-
-    const { sort, status } = req.query;
-
-    const myPage = await prisma.Resume.findMany({
-      where: {
-        userId:
-          role == 'APPLICANT'
-            ? userId
-            : {
-                gt: 0,
-              },
-        status,
-      },
-      select: {
-        users: {
-          select: {
-            userInfos: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
-        resumeId: true,
-        title: true,
-        status: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-      orderBy: {
-        createdAt: sort ?? 'desc',
-      },
-    });
-
-    return res.status(HTTP_STATUS.OK).json({
-      status: HTTP_STATUS.OK,
-      message: MESSAGES.RES.READ.SUCCEED,
-      data: { myPage },
-    });
-  } catch (err) {
-    next(err);
-  }
-});
-
-router.get('/:id', accessTokenMiddleware, async (req, res, next) => {
-  try {
-    const { userId, role } = req.user;
-    const resumeId = req.params.id;
-
-    const myResume = await prisma.Resume.findFirst({
-      where: {
-        resumeId: +resumeId,
-        userId:
-          role == 'APPLICANT'
-            ? userId
-            : {
-                gt: 0,
-              },
-      },
-      select: {
-        users: {
-          select: {
-            userInfos: {
-              select: {
-                name: true,
-              },
-            },
-          },
-        },
-        title: true,
-        content: true,
-      },
-    });
-
-    if (!myResume) {
-      return res.status(HTTP_STATUS.FORBIDDEN).json({
-        status: HTTP_STATUS.FORBIDDEN,
-        message: MESSAGES.RES.COMMON.FAILED,
-      });
-    }
-
-    return res.status(HTTP_STATUS.OK).json({
-      status: HTTP_STATUS.OK,
-      message: MESSAGES.RES.READ_ONE.SUCCEED,
-      data: { myResume },
-    });
-  } catch (err) {
-    next(err);
-  }
-});
-
+//이력서 수정
 router.patch('/:id', accessTokenMiddleware, requireRoles(['APPLICANT']), editResumeValidator, async (req, res, next) => {
   try {
     const { userId } = req.user;
