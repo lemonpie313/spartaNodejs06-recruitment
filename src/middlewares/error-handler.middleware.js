@@ -11,8 +11,8 @@ export default function (err, req, res, next) {
     });
   }
 
-  return res.status(HTTP_STATUS.ERROR).json({
-    status: HTTP_STATUS.ERROR,
-    message: MESSAGES.ERROR,
+  return res.status(err.status).json({
+    status: err.status,
+    message: err.message,
   });
 }

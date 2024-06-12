@@ -1,25 +1,25 @@
 import jwt from 'jsonwebtoken';
-import { prisma } from '../utils/prisma.util.js';
 import { AuthRepository } from '../repositories/auth.repository.js';
 import bcrypt from 'bcrypt';
 import { MESSAGES } from '../const/messages.const.js';
 import { HTTP_STATUS } from '../const/http-status.const.js';
+import { HttpError } from '../error/http.error.js';
 
 export default async function (req, res, next) {
   try {
     const authRepository = new AuthRepository();
     const authorization = req.headers.authorization;
     if (!authorization) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: MESSAGES.JWT.NONE });
+      throw new HttpError.Unauthorized(MESSAGES.JWT.NONE);
     }
 
     const [tokenType, refreshToken] = authorization.split(' ');
 
     if (tokenType !== 'Bearer') {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: MESSAGES.JWT.NOT_TYPE });
+      throw new HttpError.Unauthorized(MESSAGES.JWT.NOT_TYPE);
     }
     if (!refreshToken) {
-      return res.status(HTTP_STATUS.UNAUTHORIZED).json({ status: HTTP_STATUS.UNAUTHORIZED, message: MESSAGES.JWT.NONE });
+      throw new HttpError.Unauthorized(MESSAGES.JWT.NONE);
     }
 
     const decodedToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET_KEY);
@@ -27,11 +27,11 @@ export default async function (req, res, next) {
 
     const tokenUser = await authRepository.findTokenById(userId);
     if (!tokenUser) {
-      throw new Error('인증 정보가 만료되었습니다.');
+      throw new HttpError.Unauthorized(MESSAGES.JWT.EXPIRED);
     }
     if (!(await bcrypt.compareSync(refreshToken, tokenUser.token))) {
       await authRepository.deleteToken(userId);
-      throw new Error('폐기된 인증정보입니다.');
+      throw new HttpError.Unauthorized(MESSAGES.JWT.DISCARDED);
     }
 
     const user = await authRepository.findUserInfoById(userId);
