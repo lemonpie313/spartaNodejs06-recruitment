@@ -61,3 +61,14 @@ express.js, mySQL을 이용하여 채용 서비스 백엔드 서버를 구현하
 - **Repository** : Service 계층에서 Database와의 접촉이 필요할 경우 Repository에서 Database 생성, 조회, 수정, 삭제 등의 역할을 한다.
 
 ## 문제 발생 및 해결
+### 1. 레이어 분리 후 에러 처리
+3-Layered-Architectrue로 라우터를 분리한 후, 모든 에러처리는 Controller 계층에서 이뤄져야 한다는 점에서 어려움을 겪었다.
+#### 1) Service 계층 에러처리
+Service 계층에서 발생한 에러를 모두 ```throw new Error ('에러메시지')``` 방식으로 처리를 한 결과, 콘솔창에만 에러메시지가 출력되고 API Client에서는 확인이 되지 않았다.
+
+따라서, error 폴더에 http-error.js 라는 파일에 http-status별로 에러 status와 message를 생성할 수 있는 클래스를 만들어 export하였다. 이 클래스는 service 계층에서 import 받아, ```throw new Error ('에러메시지')```로 에러를 발생시키는 것이 아닌, ```throw new HttpStatus.클래스명('에러메시지')``` 형태로 에러를 throw 하여 에러처리 미들웨어에서 에러를 처리할 수 있도록 하였다.
+
+#### 2) 인증/인가 미들웨어 에러처리
+이전에는 미들웨어에서 직접 에러를 response로 반환시켰으나, 레이어를 분리한 후 1)과 같이 에러를 throw해주어야 했다.
+
+1)과 마찬가지로, ```res.status(상태코드).json(message: '에러메시지')``` 형식으로 에러를 발생시키는 것이 아니라, ```throw new HttpStatus.클래스명('에러메시지')``` 형태로 에러를 throw 시켰다. 또한, 미들웨어의 catch(err)에서 처리하는 예외처리 부분은 모두 지우고 ```next(err)```로 넘겨준 뒤, 이 역시 에러처리 미들웨어에서 한번에 처리할 수 있도록 하였다.
