@@ -85,6 +85,7 @@ export const MESSAGES = {
     NO_MATCH: '인증 정보와 일치하는 사용자가 없습니다.',
     EXPIRED: '인증 정보가 만료되었습니다.',
     NOT_AVAILABLE: '인증 정보가 유효하지 않습니다.',
+    DISCARDED: '폐기된 인증정보입니다.',
     ELSE: '비정상적인 접근입니다.',
   },
   ROLE: {
