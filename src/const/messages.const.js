@@ -30,6 +30,9 @@ export const MESSAGES = {
     READ: {
       SUCCEED: '회원정보 조회에 성공하였습니다.',
     },
+    TOKEN: {
+      SUCCEED: '토큰 생성이 완료되었습니다.',
+    },
     LOGOUT: {
       SUCCEED: '로그아웃 되었습니다.',
     },
@@ -42,14 +45,18 @@ export const MESSAGES = {
       SUCCEED: '이력서 작성이 완료되었습니다.',
     },
     READ: {
+      SORT: {
+        INVALID_FORMAT: '정렬 방식이 올바르지 않습니다.',
+      },
       SUCCEED: '이력서 조회에 성공했습니다.',
     },
     READ_ONE: {
       SUCCEED: '이력서 상세조회에 성공했습니다.',
     },
     UPDATE: {
-      REQUIRED: '수정할 내용을 입력해주세요.',
-      MIN_LENGTH: '이력서 내용은 150자 이상 작성해야 합니다.',
+      TITLE_REQUIRED: '수정할 제목을 입력해주세요.',
+      CONTENT_REQUIRED: '수정할 내용을 입력해주세요.',
+      CONTENT_MIN_LENGTH: '이력서 내용은 150자 이상 작성해야 합니다.',
       SUCCEED: '이력서 수정이 완료되었습니다.',
     },
     DELETE: {
