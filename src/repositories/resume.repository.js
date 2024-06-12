@@ -158,7 +158,7 @@ export class ResumeRepository {
           },
         });
 
-        return [resumeLog];
+        return resumeLog;
       },
       {
         isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
