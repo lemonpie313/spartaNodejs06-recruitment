@@ -1,11 +1,18 @@
-import { UserRepository } from '../repositories/user.repository.js';
+import { AuthRepository } from '../repositories/auth.repository.js';
 
 export class UserService {
-  userRepository = new UserRepository();
+  authRepository = new AuthRepository();
 
-  // 게시글 조회
+  // 회원정보 조회
   findUserInfo = async (userId) => {
-    const userInfo = await this.userRepository.findUserInfo(userId);
-    return userInfo;
+    const userInfo = await this.authRepository.findUserInfoById(userId);
+    return {
+      userId: userInfo.userId,
+      email: userInfo.email,
+      name: userInfo.name,
+      role: userInfo.role,
+      createdAt: userInfo.createdAt,
+      updatedAt: userInfo.updatedAt,
+    };
   };
 }

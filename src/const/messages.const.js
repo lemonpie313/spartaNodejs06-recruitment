@@ -30,6 +30,9 @@ export const MESSAGES = {
     READ: {
       SUCCEED: '회원정보 조회에 성공하였습니다.',
     },
+    TOKEN: {
+      SUCCEED: '토큰 생성이 완료되었습니다.',
+    },
     LOGOUT: {
       SUCCEED: '로그아웃 되었습니다.',
     },

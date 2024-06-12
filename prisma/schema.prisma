@@ -29,76 +29,59 @@ enum Status {
 }
 
 //model
-
 model Users {
   userId    Int      @id @default(autoincrement()) @map("user_id")
   email     String   @unique @map("email")
+  name      String   @map("name")
   password  String   @map("password")
+  role      Role     @default(APPLICANT) @map("role")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  userInfos     UserInfos?
-  resume        Resume[]
-  resumeLog     ResumeLog[]
-  refreshToken  RefreshToken?
+  resume       Resume[]
+  resumeLog    ResumeLog[]
+  refreshToken RefreshToken?
 
   @@map("users")
 }
 
-model UserInfos {
-  userInfoId  Int       @id                   @default(autoincrement())   @map("user_info_id")
-  userId      Int       @unique               @map("user_id")
-  email       String    @unique               @map("email")
-  name        String    @map("name")
-  password    String    @map("password")
-  role        Role      @default(APPLICANT)   @map("role")
-  createdAt   DateTime  @default(now())       @map("created_at")
-  updatedAt   DateTime  @updatedAt            @map("updated_at")
-
-  users Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
-
-  @@map("user_infos")
-}
-
 model Resume {
-  resumeId    Int       @id               @default(autoincrement())  @map("resume_id")
-  userId      Int       @map("user_id")
-  title       String    @map("title")
-  content     String    @map("content")   @db.Text
-  status      Status    @default(APPLY)    @map("status")
-  createdAt   DateTime  @default(now())   @map("created_at")
-  updatedAt   DateTime  @updatedAt        @map("updated_at")
+  resumeId  Int      @id @default(autoincrement()) @map("resume_id")
+  userId    Int      @map("user_id")
+  title     String   @map("title")
+  content   String   @map("content") @db.Text
+  status    Status   @default(APPLY) @map("status")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  users Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  resumeLog   ResumeLog[]
+  users     Users       @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  resumeLog ResumeLog[]
 
   @@map("resume")
 }
 
 model ResumeLog {
-  resumeLogId     Int       @id                       @default(autoincrement())   @map("resume_log_id")
-  recruiterId     Int       @map("user_id")
-  resumeId        Int       @map("resume_id")
-  status          Status    @map("status")
-  previousStatus  Status    @map("previous_status")
-  reason          String    @map("reason")            @db.Text
-  createdAt       DateTime  @default(now())           @map("created_at")
+  resumeLogId    Int      @id @default(autoincrement()) @map("resume_log_id")
+  recruiterId    Int      @map("user_id")
+  resumeId       Int      @map("resume_id")
+  status         Status   @map("status")
+  previousStatus Status   @map("previous_status")
+  reason         String   @map("reason") @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
 
-  users   Users   @relation(fields: [recruiterId], references: [userId], onDelete: Cascade)
-  resume  Resume  @relation(fields: [resumeId], references: [resumeId], onDelete: Cascade)
+  users  Users  @relation(fields: [recruiterId], references: [userId], onDelete: Cascade)
+  resume Resume @relation(fields: [resumeId], references: [resumeId], onDelete: Cascade)
 
   @@map("resume_log")
 }
 
 model RefreshToken {
-  tokenId     Int       @id                 @default(autoincrement())   @map("token_id")
-  userId      Int       @unique             @map("user_id")
-  token       String    @map("token")       @db.Text
-  createdAt   DateTime  @default(now())     @map("created_at")
+  tokenId   Int      @id @default(autoincrement()) @map("token_id")
+  userId    Int      @unique @map("user_id")
+  token     String   @map("token") @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
 
-  users   Users   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  users Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
   @@map("refresh_token")
 }
-
-
-
