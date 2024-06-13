@@ -43,7 +43,7 @@ describe('Resume Service Unit Test', () => {
   });
 
   //관리자 이력서 조회
-  test('getAllResumes-Recruiter', async () => {
+  test('getAllResumes - Recruiter', async () => {
     const mockReturn = dummyResumes.findMany;
     mockResumeRepository.getAllResumes.mockReturnValue(mockReturn);
 
@@ -65,7 +65,7 @@ describe('Resume Service Unit Test', () => {
   });
 
   //지원자 본인 이력서 조회
-  test('getAllResumes-Applicant', async () => {
+  test('getAllResumes - Applicant', async () => {
     const mockReturn = dummyResumes.findMany.slice(0, 2);
     mockResumeRepository.getAllResumesById.mockReturnValue(mockReturn);
 
@@ -87,7 +87,7 @@ describe('Resume Service Unit Test', () => {
   });
 
   //지원자 본인 이력서 조회 - 쿼리 적용 X
-  test('getAllResumes-Applicant', async () => {
+  test('getAllResumes - Applicant - invalid query', async () => {
     const mockReturn = dummyResumes.findMany.slice(0, 2);
     mockResumeRepository.getAllResumesById.mockReturnValue(mockReturn);
 
@@ -109,7 +109,7 @@ describe('Resume Service Unit Test', () => {
   });
 
   //지원자 본인 이력서 조회 - SORT 값 잘못됨
-  test('getAllResumes-Applicant', async () => {
+  test('getAllResumes - Applicant - invalid query', async () => {
     const mockReturn = dummyResumes.findMany.slice(0, 2);
     mockResumeRepository.getAllResumesById.mockReturnValue(mockReturn);
     const params = [1, 'APPLICANT', 'WRONG_QUERY', 'APPLY'];
@@ -121,7 +121,7 @@ describe('Resume Service Unit Test', () => {
   });
 
   //지원자 본인 이력서 조회 - STATUS 값 잘못됨
-  test('getAllResumes-Applicant', async () => {
+  test('getAllResumes - Applicant', async () => {
     const mockReturn = dummyResumes.findMany.slice(0, 2);
     mockResumeRepository.getAllResumesById.mockReturnValue(mockReturn);
     const params = [1, 'APPLICANT', 'DESC', 'WRONG_QUERY'];
@@ -133,7 +133,7 @@ describe('Resume Service Unit Test', () => {
   });
 
   //관리자 이력서 상세조회
-  test('getResume-Recruiter', async () => {
+  test('getResume - Recruiter', async () => {
     const mockReturn = dummyResumes.findFirst.return;
     mockResumeRepository.getResumeById.mockReturnValue(mockReturn);
 
@@ -146,7 +146,7 @@ describe('Resume Service Unit Test', () => {
   });
 
   //관리자 이력서 상세조회 - 이력서 없을때
-  test('getResume-Recruiter', async () => {
+  test('getResume - Recruiter - not found', async () => {
     const mockReturn = undefined;
     mockResumeRepository.getResumeById.mockReturnValue(mockReturn);
     const params = [dummyResumes.findFirst.params.userId, 'RECRUITER', dummyResumes.findFirst.params.resumeId];
@@ -160,7 +160,7 @@ describe('Resume Service Unit Test', () => {
   });
 
   //지원자 본인 이력서 상세조회
-  test('getResume-Applicant', async () => {
+  test('getResume - Applicant', async () => {
     const mockReturn = dummyResumes.findFirst.return;
     mockResumeRepository.getResumeByUserId.mockReturnValue(mockReturn);
 
@@ -173,7 +173,7 @@ describe('Resume Service Unit Test', () => {
   });
 
   //지원자 본인 이력서 상세조회 - 이력서 없을때
-  test('getResume-Applicant', async () => {
+  test('getResume - Applicant - not found', async () => {
     const mockReturn = undefined;
     mockResumeRepository.getResumeByUserId.mockReturnValue(mockReturn);
     const params = [dummyResumes.findFirst.params.userId, 'APPLICANT', dummyResumes.findFirst.params.resumeId];
@@ -210,7 +210,7 @@ describe('Resume Service Unit Test', () => {
   });
 
   //이력서 수정 - 이력서 없을때
-  test('updateResume', async () => {
+  test('updateResume - not found', async () => {
     const findMockReturn = undefined;
     mockResumeRepository.getResumeByUserId.mockReturnValue(findMockReturn);
     const params = [
@@ -243,7 +243,7 @@ describe('Resume Service Unit Test', () => {
   });
 
   //이력서 삭제 - 이력서 없을때
-  test('deleteResume', async () => {
+  test('deleteResume - not found', async () => {
     const findMockReturn = undefined;
     mockResumeRepository.getResumeByUserId.mockReturnValue(findMockReturn);
     const params = [dummyResumes.delete.params.userId, dummyResumes.delete.params.resumeId];
@@ -252,6 +252,80 @@ describe('Resume Service Unit Test', () => {
     } catch (err) {
       expect(mockResumeRepository.getResumeByUserId).toHaveBeenCalledTimes(1);
       expect(mockResumeRepository.getResumeByUserId).toHaveBeenCalledWith(params[0], params[1]);
+      expect(err).toEqual(new HttpError.NotFound(MESSAGES.RES.COMMON.FAILED));
+    }
+  });
+
+  //이력서 상태 수정
+  test('updateResumeStatus', async () => {
+    const findMockReturn = dummyResumes.statusUpdate.findFirst;
+    mockResumeRepository.getResumeById.mockReturnValue(findMockReturn);
+
+    const updateMockReturn = dummyResumes.statusUpdate.return;
+    mockResumeRepository.updateResumeStatus.mockReturnValue(updateMockReturn);
+
+    const params = [
+      dummyResumes.update.params.userId,
+      dummyResumes.update.params.resumeId,
+      dummyResumes.update.params.status,
+      dummyResumes.update.params.reason,
+    ];
+    const data = await resumeService.updateResumeStatus(...params);
+
+    expect(data).toBe(updateMockReturn);
+    expect(mockResumeRepository.getResumeById).toHaveBeenCalledTimes(1);
+    expect(mockResumeRepository.getResumeById).toHaveBeenCalledWith(params[1]);
+    expect(mockResumeRepository.updateResumeStatus).toHaveBeenCalledTimes(1);
+    expect(mockResumeRepository.updateResumeStatus).toHaveBeenCalledWith(...params, findMockReturn.status);
+  });
+
+  //이력서 상태 수정 - 이력서 존재 X
+  test('updateResumeStatus - not found', async () => {
+    const findMockReturn = undefined;
+    mockResumeRepository.getResumeById.mockReturnValue(findMockReturn);
+    const params = [
+      dummyResumes.update.params.userId,
+      dummyResumes.update.params.resumeId,
+      dummyResumes.update.params.status,
+      dummyResumes.update.params.reason,
+    ];
+    try {
+      const data = await resumeService.updateResumeStatus(...params);
+    } catch (err) {
+      expect(mockResumeRepository.getResumeById).toHaveBeenCalledTimes(1);
+      expect(mockResumeRepository.getResumeById).toHaveBeenCalledWith(params[1]);
+      expect(err).toEqual(new HttpError.NotFound(MESSAGES.RES.COMMON.FAILED));
+    }
+  });
+
+  //이력서 로그 조회
+  test('getResumeLog', async () => {
+    const findMockReturn = dummyResumes.getResumeLog.findFirst;
+    mockResumeRepository.getResumeById.mockReturnValue(findMockReturn);
+
+    const mockReturn = dummyResumes.getResumeLog.return;
+    mockResumeRepository.getResumeLogById.mockReturnValue(mockReturn);
+
+    const params = dummyResumes.getResumeLog.params.resumeId;
+    const data = await resumeService.getResumeLog(params);
+
+    expect(data).toBe(mockReturn.sort((a, b) => b.createdAt - a.createdAt));
+    expect(mockResumeRepository.getResumeById).toHaveBeenCalledTimes(1);
+    expect(mockResumeRepository.getResumeById).toHaveBeenCalledWith(params);
+    expect(mockResumeRepository.getResumeLogById).toHaveBeenCalledTimes(1);
+    expect(mockResumeRepository.getResumeLogById).toHaveBeenCalledWith(params);
+  });
+
+  //이력서 로그 조회 - 이력서 존재 X
+  test('getResumeLog', async () => {
+    const findMockReturn = undefined;
+    mockResumeRepository.getResumeById.mockReturnValue(findMockReturn);
+    const params = dummyResumes.getResumeLog.params.resumeId;
+    try {
+      const data = await resumeService.getResumeLog(params);
+    } catch (err) {
+      expect(mockResumeRepository.getResumeById).toHaveBeenCalledTimes(1);
+      expect(mockResumeRepository.getResumeById).toHaveBeenCalledWith(params);
       expect(err).toEqual(new HttpError.NotFound(MESSAGES.RES.COMMON.FAILED));
     }
   });

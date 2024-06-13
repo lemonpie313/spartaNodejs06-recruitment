@@ -42,7 +42,6 @@ describe('Auth Service Unit Test', () => {
     expect(mockAuthRepository.findUserInfoByEmail).toHaveBeenCalledWith(signUpParams.email);
 
     expect(mockAuthRepository.createUserInfo).toHaveBeenCalledTimes(1);
-    expect(mockAuthRepository.createUserInfo).toHaveBeenCalled();
   });
 
   //회원가입 실패: 이메일 존재

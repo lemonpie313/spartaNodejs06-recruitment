@@ -1,8 +1,7 @@
-import { Prisma } from '@prisma/client';
-
 export class ResumeRepository {
-  constructor(prisma) {
+  constructor(prisma, Prisma) {
     this.prisma = prisma;
+    this.Prisma = Prisma;
   }
 
   //이력서 생성
@@ -165,7 +164,7 @@ export class ResumeRepository {
         return resumeLog;
       },
       {
-        isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
+        isolationLevel: this.Prisma.TransactionIsolationLevel.ReadCommitted,
       },
     );
     return resumeLog;

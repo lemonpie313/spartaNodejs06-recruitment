@@ -7,10 +7,11 @@ import { recruiterEditValidator } from '../middlewares/joi/recruiter.joi.middlew
 import { ResumeRepository } from '../repositories/resume.repository.js';
 import { ResumeService } from '../services/resume.service.js';
 import { ResumeController } from '../controllers/resume.controller.js';
+import { Prisma } from '@prisma/client';
 
 const router = express.Router();
 
-const resumeRepository = new ResumeRepository(prisma);
+const resumeRepository = new ResumeRepository(prisma, Prisma);
 const resumeService = new ResumeService(resumeRepository);
 const resumeController = new ResumeController(resumeService);
 

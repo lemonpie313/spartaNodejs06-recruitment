@@ -118,4 +118,56 @@ export const dummyResumes = {
       updatedAt: new Date(),
     },
   },
+  statusUpdate: {
+    params: {
+      userId: 1,
+      resumeId: 1,
+      status: 'DROP',
+      reason: '부적합',
+      previousStatus: 'APPLY',
+    },
+    findFirst: {
+      userId: 1,
+      resumeId: 1,
+      title: '튼튼한 개발자 스파르탄',
+      status: 'APPLY',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    return: {
+      resumeLogId: 1,
+      recruiterId: 2,
+      resumeId: 1,
+      previousStatus: 'APPLY',
+      status: 'DROP',
+      reason: '부적합',
+      createdAt: new Date(),
+    },
+  },
+  getResumeLog: {
+    params: {
+      resumeId: 1,
+    },
+    findFirst: {
+      userId: 1,
+      resumeId: 1,
+      title: '튼튼한 개발자 스파르탄',
+      status: 'APPLY',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+    return: [
+      {
+        resumeLogId: 1,
+        users: {
+          name: '스파르탄',
+        },
+        resumeId: 1,
+        previousStatus: 'APPLY',
+        status: 'DROP',
+        reason: '부적합',
+        createdAt: new Date(),
+      },
+    ],
+  },
 };

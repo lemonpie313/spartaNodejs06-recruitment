@@ -10,6 +10,8 @@ const mockResumeService = {
   getResume: jest.fn(),
   updateResume: jest.fn(),
   deleteResume: jest.fn(),
+  updateResumeStatus: jest.fn(),
+  getResumeLog: jest.fn(),
 };
 
 const mockRequest = {
@@ -103,7 +105,7 @@ describe('ResumeController Unit Test', () => {
     const mockReturn = dummyResumes.findFirst.return;
     mockResumeService.getResume.mockReturnValue(mockReturn);
 
-    const params = [1, 'RECRUITER', 1];
+    const params = [dummyResumes.findFirst.params.userId, 'RECRUITER', dummyResumes.findFirst.params.resumeId];
     mockRequest.user = {
       userId: params[0],
       role: params[1],
@@ -173,6 +175,62 @@ describe('ResumeController Unit Test', () => {
       status: HTTP_STATUS.OK,
       message: MESSAGES.RES.DELETE.SUCCEED,
       data: { userId: params[0] },
+    });
+  });
+
+  //이력서 상태 수정
+  test('updateResumeLog', async () => {
+    const mockReturn = dummyResumes.statusUpdate.return;
+    mockResumeService.updateResumeStatus.mockReturnValue(mockReturn);
+
+    const params = [
+      dummyResumes.update.params.userId,
+      dummyResumes.update.params.resumeId,
+      dummyResumes.update.params.status,
+      dummyResumes.update.params.reason,
+    ];
+    mockRequest.user = { userId: params[0] };
+    mockRequest.params = { id: String(params[1]) };
+    mockRequest.body = {
+      status: params[2],
+      reason: params[3],
+    };
+    await resumeController.updateResumeStatus(mockRequest, mockResponse, mockNext);
+
+    expect(mockResumeService.updateResumeStatus).toHaveBeenCalledTimes(1);
+    expect(mockResumeService.updateResumeStatus).toHaveBeenCalledWith(...params);
+
+    expect(mockResponse.status).toHaveBeenCalledTimes(1);
+    expect(mockResponse.status).toHaveBeenCalledWith(HTTP_STATUS.OK);
+
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      status: HTTP_STATUS.OK,
+      message: MESSAGES.RECRUITER.UPDATE.SUCCEED,
+      data: mockReturn,
+    });
+  });
+
+  //이력서 로그 조회
+  //이력서 상세 조회
+  test('getResumeLog', async () => {
+    const mockReturn = dummyResumes.getResumeLog.return;
+    mockResumeService.getResumeLog.mockReturnValue(mockReturn);
+
+    const params = dummyResumes.getResumeLog.params.resumeId;
+    mockRequest.params = { id: String(params) };
+
+    await resumeController.getResumeLog(mockRequest, mockResponse, mockNext);
+
+    expect(mockResumeService.getResumeLog).toHaveBeenCalledTimes(1);
+    expect(mockResumeService.getResumeLog).toHaveBeenCalledWith(params);
+
+    expect(mockResponse.status).toHaveBeenCalledTimes(1);
+    expect(mockResponse.status).toHaveBeenCalledWith(HTTP_STATUS.OK);
+
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      status: HTTP_STATUS.OK,
+      message: MESSAGES.RECRUITER.LOG.SUCCEED,
+      data: { resumeLog: mockReturn },
     });
   });
 });
