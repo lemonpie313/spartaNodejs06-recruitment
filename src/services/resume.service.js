@@ -11,7 +11,13 @@ export class ResumeService {
   //이력서 생성
   createResume = async (userId, title, content) => {
     const resume = await this.resumeRepository.createResume(userId, title, content);
-    return resume;
+    return {
+      resumeId: resume.resumeId,
+      title: resume.title,
+      status: resume.status,
+      createdAt: resume.createdAt,
+      updatedAt: resume.updatedAt,
+    };
   };
 
   //이력서 목록 조회
@@ -21,9 +27,12 @@ export class ResumeService {
     }
     let resumes;
     if (role == ROLE.RECRUITER) {
-      resumes = await this.resumeRepository.getAllResumes(status);
+      resumes = await this.resumeRepository.getAllResumes();
     } else {
-      resumes = await this.resumeRepository.getAllResumesById(userId, status);
+      resumes = await this.resumeRepository.getAllResumesById(userId);
+    }
+    if (status) {
+      resumes = resumes.filter((cur) => cur.status == status);
     }
     return resumes.sort((a, b) => (sort == SORT.ASC ? a.createdAt - b.createdAt : b.createdAt - a.createdAt));
   };
