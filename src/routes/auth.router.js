@@ -1,10 +1,16 @@
 import express from 'express';
 import refreshMiddleware from '../middlewares/refresh-token.middleware.js';
 import { signUpValidator, signInValidator } from '../middlewares/joi/auth.joi.middleware.js';
+import { prisma } from '../utils/prisma.util.js';
+import { AuthRepository } from '../repositories/auth.repository.js';
+import { AuthService } from '../services/auth.service.js';
 import { AuthController } from '../controllers/auth.controller.js';
 
-const authController = new AuthController();
 const router = express.Router();
+
+const authRepository = new AuthRepository(prisma);
+const authService = new AuthService(authRepository);
+const authController = new AuthController(authService);
 
 /* 회원가입 */
 router.post('/sign-up', signUpValidator, authController.signUp);

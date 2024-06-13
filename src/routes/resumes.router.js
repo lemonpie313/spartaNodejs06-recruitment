@@ -2,15 +2,18 @@ import express from 'express';
 import { prisma } from '../utils/prisma.util.js';
 import accessTokenMiddleware from '../middlewares/access-token.middleware.js';
 import requireRoles from '../middlewares/role.middleware.js';
-import { MESSAGES } from '../const/messages.const.js';
-import { HTTP_STATUS } from '../const/http-status.const.js';
 import { createResumeValidator, editResumeValidator } from '../middlewares/joi/resume.joi.middleware.js';
-import { Prisma } from '@prisma/client';
 import { recruiterEditValidator } from '../middlewares/joi/recruiter.joi.middleware.js';
+import { ResumeRepository } from '../repositories/resume.repository.js';
+import { ResumeService } from '../services/resume.service.js';
 import { ResumeController } from '../controllers/resume.controller.js';
+import { Prisma } from '@prisma/client';
 
-const resumeController = new ResumeController();
 const router = express.Router();
+
+const resumeRepository = new ResumeRepository(prisma, Prisma);
+const resumeService = new ResumeService(resumeRepository);
+const resumeController = new ResumeController(resumeService);
 
 //이력서 작성
 router.post('/', accessTokenMiddleware, requireRoles(['APPLICANT']), createResumeValidator, resumeController.createResume);
