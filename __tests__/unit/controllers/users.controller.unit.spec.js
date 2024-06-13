@@ -26,9 +26,8 @@ const userController = new UserController(mockUserService);
 
 describe('UserController Unit Test', () => {
   beforeEach(() => {
-    jest.resetAllMocks(); // 모든 Mock을 초기화합니다.
+    jest.resetAllMocks();
 
-    // mockResponse.status의 경우 메서드 체이닝으로 인해 반환값이 Response(자신: this)로 설정되어야합니다.
     mockResponse.status.mockReturnValue(mockResponse);
   });
 
