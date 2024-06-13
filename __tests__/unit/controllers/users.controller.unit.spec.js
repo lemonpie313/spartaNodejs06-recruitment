@@ -41,13 +41,13 @@ describe('UserController Unit Test', () => {
       updatedAt: dummyUsers[1].updatedAt,
     };
     const userId = dummyUsers[1].userId;
-    mockRequest.user = userId;
+    mockRequest.user = { userId: userId };
     mockUserService.findUserInfo.mockReturnValue(sampleUserInfo);
 
     await userController.getUserInfo(mockRequest, mockResponse, mockNext);
 
     expect(mockUserService.findUserInfo).toHaveBeenCalledTimes(1);
-    //expect(mockUserService.findUserInfo).toHaveBeenCalledWith(userId); //>>> 왜안되냐구.....
+    expect(mockUserService.findUserInfo).toHaveBeenCalledWith(userId); //>>> 왜안되냐구.....
 
     expect(mockResponse.status).toHaveBeenCalledTimes(1);
     expect(mockResponse.status).toHaveBeenCalledWith(HTTP_STATUS.OK);

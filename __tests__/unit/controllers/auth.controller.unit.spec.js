@@ -102,11 +102,11 @@ describe('UserController Unit Test', () => {
     mockAuthService.refreshToken.mockReturnValue(sampleToken);
 
     const refreshTokenParams = 1;
-    mockRequest.user = refreshTokenParams;
+    mockRequest.user = { userId: refreshTokenParams };
     await authController.refreshToken(mockRequest, mockResponse, mockNext);
 
     expect(mockAuthService.refreshToken).toHaveBeenCalledTimes(1);
-    // expect(mockAuthService.refreshToken).toHaveBeenCalledWith(refreshTokenParams);
+    expect(mockAuthService.refreshToken).toHaveBeenCalledWith(refreshTokenParams);
 
     expect(mockResponse.status).toHaveBeenCalledTimes(1);
     expect(mockResponse.status).toHaveBeenCalledWith(HTTP_STATUS.OK);

@@ -74,6 +74,8 @@ describe('Resume Service Unit Test', () => {
     expect(mockResumeRepository.getAllResumesById).toHaveBeenCalledWith(params[0]);
   });
 
+  //지원자 본인 이력서 조회 - 이력서 없을때
+
   //관리자 이력서 상세조회
   test('getResume-Recruiter', async () => {
     const mockReturn = dummyResumes.findFirst.return;
@@ -87,6 +89,8 @@ describe('Resume Service Unit Test', () => {
     expect(mockResumeRepository.getResumeById).toHaveBeenCalledWith(params[2]);
   });
 
+  //관리자 이력서 상세조회 - 이력서 없을때
+
   //지원자 본인 이력서 상세조회
   test('getResume-Applicant', async () => {
     const mockReturn = dummyResumes.findFirst.return;
@@ -99,6 +103,8 @@ describe('Resume Service Unit Test', () => {
     expect(mockResumeRepository.getResumeByUserId).toHaveBeenCalledTimes(1);
     expect(mockResumeRepository.getResumeByUserId).toHaveBeenCalledWith(params[0], params[2]);
   });
+
+  //지원자 본인 이력서 상세조회 - 이력서 없을때
 
   //이력서 수정
   test('updateResume', async () => {
@@ -123,6 +129,8 @@ describe('Resume Service Unit Test', () => {
     expect(mockResumeRepository.updateResume).toHaveBeenCalledWith(...params);
   });
 
+  //이력서 수정 - 이력서 없을때
+
   //이력서 삭제
   test('deleteResume', async () => {
     const findMockReturn = dummyResumes.delete.findFirst;
@@ -136,4 +144,6 @@ describe('Resume Service Unit Test', () => {
     expect(mockResumeRepository.deleteResume).toHaveBeenCalledTimes(1);
     expect(mockResumeRepository.deleteResume).toHaveBeenCalledWith(...params);
   });
+
+  //이력서 삭제 - 이력서 없을때
 });
