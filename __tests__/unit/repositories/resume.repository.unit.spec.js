@@ -18,7 +18,7 @@ const mockPrisma = {
 
 const resumeRepository = new ResumeRepository(mockPrisma);
 
-describe('AuthRepository Unit Test', () => {
+describe('Resume Repository Unit Test', () => {
   beforeEach(() => {
     jest.resetAllMocks();
   });
