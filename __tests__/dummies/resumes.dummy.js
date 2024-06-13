@@ -20,7 +20,7 @@ export const dummyResumes = {
   findMany: [
     {
       users: {
-        name: dummyUsers[1].name,
+        name: '스파르탄',
       },
       resumeId: 1,
       title: '튼튼한 개발자 스파르탄',
@@ -30,7 +30,7 @@ export const dummyResumes = {
     },
     {
       users: {
-        name: dummyUsers[1].name,
+        name: '스파르탄',
       },
       resumeId: 2,
       title: '튼튼하고 영리한 개발자 스파르탄',
@@ -40,7 +40,7 @@ export const dummyResumes = {
     },
     {
       users: {
-        name: dummyUsers[2].name,
+        name: '지원자',
       },
       resumeId: 3,
       title: '창의적인 기획자 지원자',
@@ -50,7 +50,7 @@ export const dummyResumes = {
     },
     {
       users: {
-        name: dummyUsers[2].name,
+        name: '지원자',
       },
       resumeId: 4,
       title: '창의적이고 우직한 기획자 지원자',
@@ -66,7 +66,7 @@ export const dummyResumes = {
     },
     return: {
       users: {
-        name: dummyUsers[1].name,
+        name: '스파르탄',
       },
       resumeId: 1,
       title: '튼튼한 개발자 스파르탄',

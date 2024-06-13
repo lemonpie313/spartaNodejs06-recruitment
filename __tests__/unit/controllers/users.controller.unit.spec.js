@@ -32,15 +32,8 @@ describe('UserController Unit Test', () => {
   });
 
   test('getUserInfo', async () => {
-    const sampleUserInfo = {
-      userId: dummyUsers[1].userId,
-      email: dummyUsers[1].email,
-      name: dummyUsers[1].name,
-      role: dummyUsers[1].role,
-      createdAt: dummyUsers[1].createdAt,
-      updatedAt: dummyUsers[1].updatedAt,
-    };
-    const userId = dummyUsers[1].userId;
+    const sampleUserInfo = dummyUsers.findFirst.return;
+    const userId = dummyUsers.findFirst.params.userId;
     mockRequest.user = { userId: userId };
     mockUserService.findUserInfo.mockReturnValue(sampleUserInfo);
 

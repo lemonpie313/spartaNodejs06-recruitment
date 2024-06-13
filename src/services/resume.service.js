@@ -2,6 +2,8 @@ import { ROLE } from '../const/role.const.js';
 import { SORT } from '../const/sort.const.js';
 import { MESSAGES } from '../const/messages.const.js';
 import { HttpError } from '../error/http.error.js';
+import { RESUME_STATUS } from '../const/status.const.js';
+import { HTTP_STATUS } from '../const/http-status.const.js';
 
 export class ResumeService {
   constructor(resumeRepository) {
@@ -22,8 +24,11 @@ export class ResumeService {
 
   //이력서 목록 조회
   getAllResumes = async (userId, role, sort, status) => {
-    if (sort != SORT.ASC && sort != SORT.DESC) {
-      throw new HttpError.BadRequest(MESSAGES.RES.READ.SORT.INVALID_FORMAT);
+    if (sort && sort != SORT.ASC && sort != SORT.DESC) {
+      throw new HttpError.BadRequest(MESSAGES.RES.READ.QUERY.INVALID_FORMAT);
+    }
+    if (status && !Object.values(RESUME_STATUS).includes(status)) {
+      throw new HttpError.BadRequest(MESSAGES.RES.READ.QUERY.INVALID_FORMAT);
     }
     let resumes;
     if (role == ROLE.RECRUITER) {

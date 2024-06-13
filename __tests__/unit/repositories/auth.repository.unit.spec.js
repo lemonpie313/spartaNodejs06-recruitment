@@ -17,16 +17,16 @@ const mockPrisma = {
 
 const authRepository = new AuthRepository(mockPrisma);
 
-describe('AuthRepository Unit Test', () => {
+describe('Auth Repository Unit Test', () => {
   beforeEach(() => {
     jest.resetAllMocks(); // 모든 Mock을 초기화합니다
   });
 
   test('createUserInfo', async () => {
-    const mockReturn = dummyUsers[1];
+    const mockReturn = dummyUsers.create.return;
     mockPrisma.users.create.mockReturnValue(mockReturn);
 
-    const createUserParams = dummyUsers[0];
+    const createUserParams = dummyUsers.create.params;
     const createUserData = await authRepository.createUserInfo(createUserParams.email, createUserParams.password, createUserParams.name);
 
     expect(createUserData).toBe(mockReturn);
@@ -37,10 +37,10 @@ describe('AuthRepository Unit Test', () => {
   });
 
   test('findUserInfoById', async () => {
-    const mockReturn = dummyUsers[1];
+    const mockReturn = dummyUsers.findFirst.return;
     mockPrisma.users.findFirst.mockReturnValue(mockReturn);
 
-    const findUserParams = dummyUsers[1].userId;
+    const findUserParams = dummyUsers.findFirst.params.userId;
     const userInfo = await authRepository.findUserInfoById(findUserParams);
 
     expect(userInfo).toBe(mockReturn);
@@ -49,10 +49,10 @@ describe('AuthRepository Unit Test', () => {
   });
 
   test('findUserInfoByEmail', async () => {
-    const mockReturn = dummyUsers[1];
+    const mockReturn = dummyUsers.findFirst.return;
     mockPrisma.users.findFirst.mockReturnValue(mockReturn);
 
-    const findUserParams = dummyUsers[1].email;
+    const findUserParams = dummyUsers.findFirst.params.email;
     const userInfo = await authRepository.findUserInfoByEmail(findUserParams);
 
     expect(userInfo).toBe(mockReturn);
