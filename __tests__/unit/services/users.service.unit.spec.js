@@ -1,55 +1,34 @@
 import { jest, describe, test, expect, beforeEach } from '@jest/globals';
+import { UserService } from '../../../src/services/user.service';
+import { dummyUsers } from '../../dummies/users.dummy.js';
 
-// TODO: template 이라고 되어 있는 부분을 다 올바르게 수정한 후 사용해야 합니다.
-
-const mockTemplateRepository = {
-  create: jest.fn(),
-  readMany: jest.fn(),
-  readOne: jest.fn(),
-  update: jest.fn(),
-  delete: jest.fn(),
+const mockAuthRepository = {
+  findUserInfoById: jest.fn(),
 };
 
-const templateService = new TemplateService(mockTemplateRepository);
+const userService = new UserService(mockAuthRepository);
 
-describe('TemplateService Unit Test', () => {
+describe('UserService Unit Test', () => {
   beforeEach(() => {
     jest.resetAllMocks(); // 모든 Mock을 초기화합니다.
   });
 
-  test('create Method', async () => {
-    // GIVEN
-    // WHEN
-    // THEN
-  });
+  test('findUserInfo', async () => {
+    const mockReturn = dummyUsers[1];
+    mockAuthRepository.findUserInfoById.mockReturnValue(mockReturn);
 
-  test('readMany Method', async () => {
-    // GIVEN
-    // WHEN
-    // THEN
-  });
+    const findUserParams = dummyUsers[1].userId;
+    const userInfo = await userService.findUserInfo(findUserParams);
 
-  test('readOne Method', async () => {
-    // GIVEN
-    // WHEN
-    // THEN
-  });
-
-  test('readOne Method - 이력서 없는 경우', async () => {
-    // GIVEN
-    // WHEN
-    // THEN
-  });
-
-  test('update Method', async () => {
-    // GIVEN
-    // WHEN
-    // THEN
-  });
-
-  test('delete Method', async () => {
-    // GIVEN
-    // WHEN
-    // THEN
+    expect(userInfo).toEqual({
+      userId: mockReturn.userId,
+      email: mockReturn.email,
+      name: mockReturn.name,
+      role: mockReturn.role,
+      createdAt: mockReturn.createdAt,
+      updatedAt: mockReturn.updatedAt,
+    });
+    expect(mockAuthRepository.findUserInfoById).toHaveBeenCalledTimes(1);
+    expect(mockAuthRepository.findUserInfoById).toHaveBeenCalledWith(findUserParams);
   });
 });

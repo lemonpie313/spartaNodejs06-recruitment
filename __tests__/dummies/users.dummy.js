@@ -6,7 +6,7 @@ export const dummyUsers = [
     name: '스파르탄',
   },
   {
-    id: 1,
+    userId: 1,
     email: 'spartan@spartacodingclub.kr',
     password: '$2b$10$ZU8QqLH0phwjorogYV67jOl6x5l/pm5Oc1QcNzOgz6ADzy7ntQ2FG',
     name: '스파르탄',
@@ -15,7 +15,7 @@ export const dummyUsers = [
     updatedAt: new Date(),
   },
   {
-    id: 2,
+    userId: 2,
     email: 'applicant@spartacodingclub.kr',
     password: '$2b$10$ZU8QqLH0phwjorogYV67jOl6x5l/pm5Oc1QcNzOgz6ADzy7ntQ2FG',
     name: '지원자',

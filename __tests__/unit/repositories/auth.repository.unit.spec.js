@@ -23,7 +23,7 @@ describe('AuthRepository Unit Test', () => {
   });
 
   test('createUserInfo', async () => {
-    const mockReturn = 'createUserInfoString';
+    const mockReturn = dummyUsers[1];
     mockPrisma.users.create.mockReturnValue(mockReturn);
 
     const createUserParams = dummyUsers[0];
@@ -37,10 +37,10 @@ describe('AuthRepository Unit Test', () => {
   });
 
   test('findUserInfoById', async () => {
-    const mockReturn = 'findUserInfoByIdString';
+    const mockReturn = dummyUsers[1];
     mockPrisma.users.findFirst.mockReturnValue(mockReturn);
 
-    const findUserParams = 1;
+    const findUserParams = dummyUsers[1].userId;
     const userInfo = await authRepository.findUserInfoById(findUserParams);
 
     expect(userInfo).toBe(mockReturn);
@@ -49,10 +49,10 @@ describe('AuthRepository Unit Test', () => {
   });
 
   test('findUserInfoByEmail', async () => {
-    const mockReturn = 'findUserInfoByEmailString';
+    const mockReturn = dummyUsers[1];
     mockPrisma.users.findFirst.mockReturnValue(mockReturn);
 
-    const findUserParams = 'spartan@spartacodingclub.kr';
+    const findUserParams = dummyUsers[1].email;
     const userInfo = await authRepository.findUserInfoByEmail(findUserParams);
 
     expect(userInfo).toBe(mockReturn);
