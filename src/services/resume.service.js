@@ -2,6 +2,8 @@ import { ROLE } from '../const/role.const.js';
 import { SORT } from '../const/sort.const.js';
 import { MESSAGES } from '../const/messages.const.js';
 import { HttpError } from '../error/http.error.js';
+import { RESUME_STATUS } from '../const/status.const.js';
+import { HTTP_STATUS } from '../const/http-status.const.js';
 
 export class ResumeService {
   constructor(resumeRepository) {
@@ -11,19 +13,31 @@ export class ResumeService {
   //이력서 생성
   createResume = async (userId, title, content) => {
     const resume = await this.resumeRepository.createResume(userId, title, content);
-    return resume;
+    return {
+      resumeId: resume.resumeId,
+      title: resume.title,
+      status: resume.status,
+      createdAt: resume.createdAt,
+      updatedAt: resume.updatedAt,
+    };
   };
 
   //이력서 목록 조회
   getAllResumes = async (userId, role, sort, status) => {
-    if (sort != SORT.ASC && sort != SORT.DESC) {
-      throw new HttpError.BadRequest(MESSAGES.RES.READ.SORT.INVALID_FORMAT);
+    if (sort && sort != SORT.ASC && sort != SORT.DESC) {
+      throw new HttpError.BadRequest(MESSAGES.RES.READ.QUERY.INVALID_FORMAT);
+    }
+    if (status && !Object.values(RESUME_STATUS).includes(status)) {
+      throw new HttpError.BadRequest(MESSAGES.RES.READ.QUERY.INVALID_FORMAT);
     }
     let resumes;
     if (role == ROLE.RECRUITER) {
-      resumes = await this.resumeRepository.getAllResumes(status);
+      resumes = await this.resumeRepository.getAllResumes();
     } else {
-      resumes = await this.resumeRepository.getAllResumesById(userId, status);
+      resumes = await this.resumeRepository.getAllResumesById(userId);
+    }
+    if (status) {
+      resumes = resumes.filter((cur) => cur.status == status);
     }
     return resumes.sort((a, b) => (sort == SORT.ASC ? a.createdAt - b.createdAt : b.createdAt - a.createdAt));
   };

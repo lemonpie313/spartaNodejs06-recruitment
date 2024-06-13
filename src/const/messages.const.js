@@ -45,8 +45,8 @@ export const MESSAGES = {
       SUCCEED: '이력서 작성이 완료되었습니다.',
     },
     READ: {
-      SORT: {
-        INVALID_FORMAT: '정렬 방식이 올바르지 않습니다.',
+      QUERY: {
+        INVALID_FORMAT: '정렬 및 필터링 방식이 올바르지 않습니다.',
       },
       SUCCEED: '이력서 조회에 성공했습니다.',
     },

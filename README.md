@@ -24,36 +24,31 @@ express.js, mySQL을 이용하여 채용 서비스 백엔드 서버를 구현하
 
 ### 2. 라우터
 #### 1) auth.router.js
-- **post - /sign-up** : 이메일주소, 비밀번호, 비밀번호 확인, 이름을 전달받으면 사용자 정보가 등록되는 회원가입의 기능을 한다. 입력값이 조건에 맞을 경우에만 회원가입이 가능하며, 중복된 이메일주소는 사용할 수 없다.
+- **post - /auth/sign-up** : 이메일주소, 비밀번호, 비밀번호 확인, 이름을 전달받으면 사용자 정보가 등록되는 회원가입의 기능을 한다. 입력값이 조건에 맞을 경우에만 회원가입이 가능하며, 중복된 이메일주소는 사용할 수 없다.
 
-- **post - /sign-in** : 이메일주소, 비밀번호를 전달받으면 해당 정보가 일치하는 사용자의 id로 AccessToken과 RefreshToken을 발급받는 로그인의 기능을 한다. 
+- **post - /auth/sign-in** : 이메일주소, 비밀번호를 전달받으면 해당 정보가 일치하는 사용자의 id로 AccessToken과 RefreshToken을 발급받는 로그인의 기능을 한다. 
 
-- **post - /refresh** : refreshToken을 전달받으면 인증 미들웨어를 거친 후 새 accessToken과 refreshToken을 발급받는다.
+- **post - /auth/refresh** : 사용자가 보유하고 있는 RefreshToken을 전달받으면, RefreshToken과 AccessToken을 갱신할 수 있다. 갱신된 RefreshToken은 hash되어 db에 업데이트된다.
 
-- **delete - /log-out** : refreshToken을 전달받으면 인증 미들웨어를 거친 후 refreshToken을 삭제한다.
+- **delete - /auth/log-out** : 사용자가 보유하고 있는 RefreshToken과 AccessToken을 삭제하여 더이상 기능을 사용할 수 없도록 하는 로그아웃 기능을 한다. 로그아웃 한 뒤 RefreshToken은 db에서도 삭제된다.
 
 #### 2) users.router.js
-- **get - /my-page** : 로그인 된 사용자의 상세정보를 조회할 수 있다.
+- **get - /user** : 로그인 된 사용자의 상세정보를 조회할 수 있다.
 
 #### 2) resume.router.js
-- **post - /resume** : 이력서의 제목과 내용을 전달받으면 이력서를 db에 저장하는 기능을 한다. 내용은 150자 이상 작성해야 하며, 역할이 ```APPLICANT```인 사용자만 접근할 수 있다.
+- **post - /resumes** : 이력서의 제목과 내용을 전달받으면 이력서를 db에 저장하는 기능을 한다. 내용은 150자 이상 작성해야 하며, 역할이 ```APPLICANT```인 사용자만 접근할 수 있다.
 
-- **get - /resume** : 이력서의 목록을 조회하는 기능을 한다. 역할이 ```APPLICANT```일 경우 자신이 작성한 이력서만 조회할 수 있으며, 역할이 ```RECRUITER```일 경우 모든 사용자의 이력서를 조회할 수 있다.
+- **get - /resumes** : 이력서의 목록을 조회하는 기능을 한다. 역할이 ```APPLICANT```일 경우 자신이 작성한 이력서만 조회할 수 있으며, 역할이 ```RECRUITER```일 경우 모든 사용자의 이력서를 조회할 수 있다.
 
-- **get - /resume/:id** : params의 id값에 해당하는 이력서의 상세 내용을 조회할 수 있다. 역할이 ```APPLICANT```일 경우 자신이 작성한 이력서만 조회할 수 있으며, 역할이 ```RECRUITER```일 경우 자신이 작성한 이력서가 아니어도 조회할 수 있다.
+- **get - /resumes/:id** : params의 id값에 해당하는 이력서의 상세 내용을 조회할 수 있다. 역할이 ```APPLICANT```일 경우 자신이 작성한 이력서만 조회할 수 있으며, 역할이 ```RECRUITER```일 경우 자신이 작성한 이력서가 아니어도 조회할 수 있다.
 
-- **patch - /resume/:id** : body를 통해 제목과 내용을 전달받으면 해당하는 이력서를 수정할 수 있다. 역할이 ```APPLICANT```인 사용자만 접근이 가능하며, 자신이 작성한 이력서일 경우에만 수정이 가능하다.
+- **patch - /resumes/:id** : body를 통해 제목과 내용을 전달받으면 해당하는 이력서를 수정할 수 있다. 역할이 ```APPLICANT```인 사용자만 접근이 가능하며, 자신이 작성한 이력서일 경우에만 수정이 가능하다.
 
-- **patch - /resume/:id** : params의 id값에 해당하는 이력서를 삭제할 수 있다. 역할이 ```APPLICANT```인 사용자만 접근이 가능하며, 자신이 작성한 이력서일 경우에만 수정이 가능하다. 
+- **delete - /resumes/:id** : params의 id값에 해당하는 이력서를 삭제할 수 있다. 역할이 ```APPLICANT```인 사용자만 접근이 가능하며, 자신이 작성한 이력서일 경우에만 삭제가 가능하다. 
 
-#### 3) recruiter.router.js
-- **patch - /resume/recruiter/:id** : 이력서의 상태와 변경사유를 전달받으면 해당 이력서의 상태를 수정하는 기능을 한다. 역할이 ```RECRUITER```인 사용자만 접근할 수 있다.
-- **get - /resume/recruiter/:id** : params의 id값에 해당하는 이력서의 상태 수정내역을 조회할 수 있다. 역할이 ```RECRUITER```인 사용자만 접근할 수 있다.
+- **patch - /resumes/recruiter/:id** : 이력서의 상태와 변경사유를 전달받으면 해당 이력서의 상태를 수정하는 기능을 한다. 역할이 ```RECRUITER```인 사용자만 접근할 수 있다.
+- **get - /resumes/recruiter/:id** : params의 id값에 해당하는 이력서의 상태 수정내역을 조회할 수 있다. 역할이 ```RECRUITER```인 사용자만 접근할 수 있다.
 
-#### 4) token.router.js
-- **get - /refresh** : 사용자가 보유하고 있는 RefreshToken을 전달받으면, RefreshToken과 AccessToken을 갱신할 수 있다. 갱신된 RefreshToken은 hash되어 db에 업데이트된다.
-
-- **delete - /log-out** : 사용자가 보유하고 있는 RefreshToken과 AccessToken을 삭제하여 더이상 기능을 사용할 수 없도록 하는 로그아웃 기능을 한다. 로그아웃 한 뒤 RefreshToken은 db에서도 삭제된다.
 
 ### 3. Controller / Service / Repository
 - **Controller** : 클라이언트로부터 request를 받고 response를 전달한다.
